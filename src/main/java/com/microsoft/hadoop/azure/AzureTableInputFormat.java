@@ -17,6 +17,13 @@ public class AzureTableInputFormat
 	private static final String ACCOUNT_URI = "azure.table.account.uri";
 	private static final String STORAGE_KEY = "azure.table.storage.key";
 
+	public static void configureInputTable(Configuration conf,
+			String tableName, URI accountUri, String storageKey) {
+		conf.set(TABLE_NAME, tableName);
+		conf.set(ACCOUNT_URI, accountUri.toString());
+		conf.set(STORAGE_KEY, storageKey);
+	}
+
 	@Override
 	public RecordReader<String, Map<String, String>> createRecordReader(
 			InputSplit split,
@@ -77,18 +84,21 @@ public class AzureTableInputFormat
 
 	private static CloudTableClient createTableClient(Configuration job)
 			throws IOException {
-		String accountUri = job.get(ACCOUNT_URI);
+		String accountUriString = job.get(ACCOUNT_URI);
 		String storageKey = job.get(STORAGE_KEY);
-		StorageCredentials creds =
-			new StorageCredentialsAccountAndKey(accountUri, storageKey);
-		CloudTableClient tableClient;
+		URI accountUri;
 		try {
-			tableClient =
-				new CloudTableClient(new URI(accountUri), creds);
-		} catch (URISyntaxException e) {
-			throw new IOException(e);
+			accountUri = new URI(accountUriString);
+		} catch (URISyntaxException ex) {
+			throw new IllegalArgumentException(
+					String.format("Invalid value specified for %s: %s",
+							ACCOUNT_URI, accountUriString),
+					ex);
 		}
-		return tableClient;
+		String accountName = accountUri.getAuthority().split("\\.")[0];
+		StorageCredentials creds =
+			new StorageCredentialsAccountAndKey(accountName, storageKey);
+		return new CloudTableClient(accountUri, creds);
 	}
 
 	public static class TableRecordReader
