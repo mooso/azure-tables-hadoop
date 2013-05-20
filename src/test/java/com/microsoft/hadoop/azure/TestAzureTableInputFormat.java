@@ -41,7 +41,7 @@ public class TestAzureTableInputFormat {
 	@Test
 	public void testGetAllPartitionKeys() throws Exception {
 		CloudTableClient tableClient = createTableClient();
-		CloudTable t = createTable(tableClient);
+		t = createTable(tableClient);
 		insertRow(t, "p1", "r1");
 		insertRow(t, "p1", "r2");
 		insertRow(t, "p2", "r1");
