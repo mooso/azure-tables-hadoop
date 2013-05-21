@@ -71,9 +71,14 @@ public class ExampleTableMapReduceJob extends Configured
 			AzureTableInputFormat.configureInputTable(getConf(), t.getName(),
 					getAccountUri(), getAccountKey());
 			Job job = new Job(getConf());
+			job.setJarByClass(getClass());
 			job.setMapperClass(DataMapper.class);
+			job.setMapOutputKeyClass(Text.class);
+			job.setMapOutputValueClass(Text.class);
 			job.setInputFormatClass(AzureTableInputFormat.class);
-			FileOutputFormat.setOutputPath(job, new Path("/tableOut"));
+			Path output = new Path("/tableOut");
+			FileSystem.get(getConf()).delete(output, true);
+			FileOutputFormat.setOutputPath(job, output);
 			job.submit();
 			job.waitForCompletion(true);
 		} finally {
