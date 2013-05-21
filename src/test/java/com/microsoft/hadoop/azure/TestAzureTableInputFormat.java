@@ -7,6 +7,7 @@ import static org.junit.Assert.*;
 import static org.junit.Assume.*;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapreduce.*;
 import org.junit.*;
 
@@ -81,6 +82,35 @@ public class TestAzureTableInputFormat {
 		assertEquals("p1", ((PartitionInputSplit)obtainedSplits.get(0)).getPartitionKey());
 		assertEquals("p2", ((PartitionInputSplit)obtainedSplits.get(1)).getPartitionKey());
 		assertEquals("p3", ((PartitionInputSplit)obtainedSplits.get(2)).getPartitionKey());
+	}
+
+	@Test
+	public void testRecordReader() throws Exception {
+		CloudTableClient tableClient = createTableClient();
+		assumeNotNull(tableClient);
+		t = createTable(tableClient);
+		insertRow(t, "p1", "r1");
+		insertRow(t, "p1", "r2");
+
+		Configuration conf = new Configuration();
+		AzureTableInputFormat.configureInputTable(conf,
+				t.getName(), getAccountUri(), getAccountKey());
+		AzureTableInputFormat inputFormat = new AzureTableInputFormat();
+		JobContext jobContext = new JobContext(conf, new JobID("jt", 5));
+		List<InputSplit> obtainedSplits = inputFormat.getSplits(jobContext);
+		assertEquals(1, obtainedSplits.size());
+		TaskAttemptContext taskContext =
+				new TaskAttemptContext(conf, new TaskAttemptID());
+		InputSplit split = obtainedSplits.get(0);
+		RecordReader<Text, WritableEntity> reader =
+				inputFormat.createRecordReader(split, taskContext);
+		assertNotNull(reader);
+		reader.initialize(split, taskContext);
+		assertTrue(reader.nextKeyValue());
+		assertEquals("r1", reader.getCurrentKey().toString());
+		assertTrue(reader.nextKeyValue());
+		assertEquals("r2", reader.getCurrentKey().toString());
+		assertFalse(reader.nextKeyValue());
 	}
 
 	private CloudTable createTable(CloudTableClient tableClient)

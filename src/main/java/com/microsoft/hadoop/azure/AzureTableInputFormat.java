@@ -12,7 +12,7 @@ import com.microsoft.windowsazure.services.core.storage.*;
 import com.microsoft.windowsazure.services.table.client.*;
 
 public class AzureTableInputFormat
-		extends InputFormat<String, Map<String, String>> {
+		extends InputFormat<Text, WritableEntity> {
 	private static final String TABLE_NAME = "azure.table.name";
 	private static final String ACCOUNT_URI = "azure.table.account.uri";
 	private static final String STORAGE_KEY = "azure.table.storage.key";
@@ -25,7 +25,7 @@ public class AzureTableInputFormat
 	}
 
 	@Override
-	public RecordReader<String, Map<String, String>> createRecordReader(
+	public RecordReader<Text, WritableEntity> createRecordReader(
 			InputSplit split,
 			TaskAttemptContext context)
 					throws IOException, InterruptedException {
@@ -102,9 +102,10 @@ public class AzureTableInputFormat
 	}
 
 	public static class TableRecordReader
-		extends RecordReader<String, Map<String, String>> {
-		private Iterator<DynamicTableEntity> queryResults;
-		private DynamicTableEntity currentEntity;
+		extends RecordReader<Text, WritableEntity> {
+		private Iterator<WritableEntity> queryResults;
+		private WritableEntity currentEntity;
+		private Text currentKey = new Text();
 
 		/**
 		 * Called once at initialization.
@@ -120,9 +121,9 @@ public class AzureTableInputFormat
 			Configuration job = context.getConfiguration();
 			CloudTableClient tableClient = createTableClient(job);
 			String tableName = job.get(TABLE_NAME);
-			TableQuery<DynamicTableEntity> query =
+			TableQuery<WritableEntity> query =
 					TableQuery
-					.from(tableName, DynamicTableEntity.class)
+					.from(tableName, WritableEntity.class)
 					.where("PartitionKey eq '" + partitionKey + "'");
 			queryResults = tableClient.execute(query).iterator();
 		}
@@ -137,8 +138,10 @@ public class AzureTableInputFormat
 				throws IOException, InterruptedException {
 			if (queryResults.hasNext()) {
 				currentEntity = queryResults.next();
+				currentKey.set(currentEntity.getRowKey());
 				return true;
 			} else {
+				currentEntity = null;
 				return false;
 			}
 		}
@@ -149,12 +152,12 @@ public class AzureTableInputFormat
 		 * @throws IOException
 		 * @throws InterruptedException
 		 */
-		public String getCurrentKey()
+		public Text getCurrentKey()
 				throws IOException, InterruptedException {
 			if (currentEntity == null) {
 				return null;
 			}
-			return currentEntity.getRowKey();
+			return currentKey;
 		}
 		
 		/**
@@ -163,98 +166,9 @@ public class AzureTableInputFormat
 		 * @throws IOException
 		 * @throws InterruptedException
 		 */
-		public Map<String, String> getCurrentValue()
+		public WritableEntity getCurrentValue()
 				throws IOException, InterruptedException {
-			final Map<String, EntityProperty> currentEntityProperties =
-					currentEntity.getProperties();
-			return new Map<String, String>() {
-				@Override
-				public void clear() {
-					throw new UnsupportedOperationException();
-				}
-
-				@Override
-				public boolean containsKey(Object key) {
-					return currentEntityProperties.containsKey(key);
-				}
-
-				@Override
-				public boolean containsValue(Object value) {
-					return currentEntityProperties.containsValue(value);
-				}
-
-				@Override
-				public Set<Entry<String, String>> entrySet() { 
-					HashSet<Entry<String, String>> ret =
-							new HashSet<Entry<String, String>>();
-					for (final Entry<String, EntityProperty> curr : currentEntityProperties.entrySet()) {
-						ret.add(new Entry<String, String>() {
-
-							@Override
-							public String getKey() {
-								return curr.getKey();
-							}
-
-							@Override
-							public String getValue() {
-								return curr.getValue().getValueAsString();
-							}
-
-							@Override
-							public String setValue(String value) {
-								throw new UnsupportedOperationException();
-							}
-						});
-					}
-					return ret;
-				}
-
-				@Override
-				public String get(Object key) {
-					return currentEntityProperties.get(key).getValueAsString();
-				}
-
-				@Override
-				public boolean isEmpty() {
-					return currentEntity.getProperties().isEmpty();
-				}
-
-				@Override
-				public Set<String> keySet() {
-					return currentEntity.getProperties().keySet();
-				}
-
-				@Override
-				public String put(String key, String value) {
-					throw new UnsupportedOperationException();
-				}
-
-				@Override
-				public void putAll(Map<? extends String, ? extends String> m) {
-					throw new UnsupportedOperationException();
-				}
-
-				@Override
-				public String remove(Object key) {
-					throw new UnsupportedOperationException();
-				}
-
-				@Override
-				public int size() {
-					return currentEntity.getProperties().size();
-				}
-
-				@Override
-				public Collection<String> values() {
-					Collection<EntityProperty> wrappedValues =
-							currentEntityProperties.values();
-					ArrayList<String> ret = new ArrayList<String>(wrappedValues.size());
-					for (EntityProperty curr : wrappedValues) {
-						ret.add(curr.getValueAsString());
-					}
-					return ret;
-				}
-			};
+			return currentEntity;
 		}
 		
 		/**
@@ -265,6 +179,7 @@ public class AzureTableInputFormat
 		 */
 		public float getProgress()
 				throws IOException, InterruptedException {
+			// No idea...
 			return 0.5f;
 		}
 		
