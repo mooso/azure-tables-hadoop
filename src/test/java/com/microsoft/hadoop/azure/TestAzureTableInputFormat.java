@@ -1,6 +1,5 @@
 package com.microsoft.hadoop.azure;
 
-import java.net.*;
 import java.util.*;
 
 import static org.junit.Assert.*;
@@ -11,10 +10,10 @@ import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapreduce.*;
 import org.junit.*;
 
-import com.microsoft.windowsazure.services.core.storage.*;
 import com.microsoft.windowsazure.services.table.client.*;
 
 import static com.microsoft.hadoop.azure.AzureTableInputFormat.*;
+import static com.microsoft.hadoop.azure.TestUtils.*;
 
 public class TestAzureTableInputFormat {
 	CloudTable t;
@@ -111,43 +110,5 @@ public class TestAzureTableInputFormat {
 		assertTrue(reader.nextKeyValue());
 		assertEquals("r2", reader.getCurrentKey().toString());
 		assertFalse(reader.nextKeyValue());
-	}
-
-	private CloudTable createTable(CloudTableClient tableClient)
-			throws URISyntaxException, StorageException {
-		UUID guid = UUID.randomUUID();
-		String tableName = "t" + guid.toString().replace('-', 'd');
-		CloudTable t = tableClient.getTableReference(tableName);
-		t.create();
-		return t;
-	}
-
-	private CloudTableClient createTableClient() throws URISyntaxException {
-		String accountName = getAccountName();
-		String accountKey = getAccountKey();
-		if (accountName == null || accountKey == null) {
-			System.out.println("Please set the system properties " +
-					"test.account.name and test.account.key.");
-			return null;
-		}
-		StorageCredentials creds =
-				new StorageCredentialsAccountAndKey(accountName, accountKey);
-		CloudTableClient tableClient =
-				new CloudTableClient(getAccountUri(), creds);
-		return tableClient;
-	}
-
-	private String getAccountKey() {
-		return System.getProperty("test.account.key");
-	}
-
-	private URI getAccountUri() throws URISyntaxException {
-		return new URI(String.format(
-				"http://%s.table.core.windows.net",
-				getAccountName()));
-	}
-
-	private String getAccountName() {
-		return System.getProperty("test.account.name");
 	}
 }
