@@ -7,6 +7,8 @@
 
 # Eclipse Files #
 .settings/*
+.classpath
+.project
 
 #Build target
 target/*
