@@ -11,17 +11,32 @@ import org.apache.hadoop.mapreduce.*;
 import com.microsoft.windowsazure.services.core.storage.*;
 import com.microsoft.windowsazure.services.table.client.*;
 
+import static com.microsoft.hadoop.azure.AzureTableConfiguration.*;
+
+/**
+ * An input format that can read data from Azure Tables. You can
+ * use it by setting it as the input format then calling
+ * configureInputTable() to specify your input table. It would then
+ * read the data one entity at a time: key is the row key, value
+ * is the entity.
+ * 
+ * By default, it's partition so that every split gets the rows
+ * for one partition key.
+ */
 public class AzureTableInputFormat
 		extends InputFormat<Text, WritableEntity> {
-	private static final String TABLE_NAME = "azure.table.name";
-	private static final String ACCOUNT_URI = "azure.table.account.uri";
-	private static final String STORAGE_KEY = "azure.table.storage.key";
-
+	/**
+	 * Configure the input table to be processed.
+	 * @param conf The configuration for the job.
+	 * @param tableName The name of the table.
+	 * @param accountUri The fully qualified account URI, e.g. http://myacc.table.core.windows.net.
+	 * @param storageKey The key for the Azure Storage account.
+	 */
 	public static void configureInputTable(Configuration conf,
 			String tableName, URI accountUri, String storageKey) {
-		conf.set(TABLE_NAME, tableName);
-		conf.set(ACCOUNT_URI, accountUri.toString());
-		conf.set(STORAGE_KEY, storageKey);
+		conf.set(TABLE_NAME.getKey(), tableName);
+		conf.set(ACCOUNT_URI.getKey(), accountUri.toString());
+		conf.set(STORAGE_KEY.getKey(), storageKey);
 	}
 
 	@Override
@@ -37,55 +52,47 @@ public class AzureTableInputFormat
 			throws IOException,
 			InterruptedException {
 		Configuration job = context.getConfiguration();
-		CloudTableClient tableClient = createTableClient(job);
-		String tableName = job.get(TABLE_NAME);
+		AzureTablePartitioner partitioner = getPartitioner(job);
+		CloudTable table = getTableReference(job);
 		ArrayList<InputSplit> ret = new ArrayList<InputSplit>();
-		Iterable<String> partitionKeys;
+		for (AzureTableInputSplit split : partitioner.getSplits(table)) {
+			ret.add(split);
+		}
+		return ret;
+	}
+
+	private CloudTable getTableReference(Configuration job)
+			throws IOException {
+		CloudTableClient tableClient = createTableClient(job);
+		String tableName = job.get(TABLE_NAME.getKey());
 		try {
-			partitionKeys = getAllPartitionKeys(tableClient.getTableReference(tableName));
+			return tableClient.getTableReference(tableName);
 		} catch (URISyntaxException e) {
 			throw new IOException(e);
 		} catch (StorageException e) {
 			throw new IOException(e);
 		}
-		for (String currentPartitionKey : partitionKeys) {
-			ret.add(new PartitionInputSplit(currentPartitionKey));
-		}
-		return ret;
-	}
-	
-	private static DynamicTableEntity GetSingleton(Iterable<DynamicTableEntity> results) {
-		for (DynamicTableEntity t : results) {
-			return t;
-		}
-		return null;
-	}
-	
-	private static TableQuery<DynamicTableEntity> getFirstRowNoFields(CloudTable table) {
-		return TableQuery
-			.from(table.getName(), DynamicTableEntity.class)
-			.select(new String[0])
-			.take(1);
 	}
 
-	static List<String> getAllPartitionKeys(CloudTable table) {
-		TableQuery<DynamicTableEntity> getNextKeyQuery =
-				getFirstRowNoFields(table);
-		CloudTableClient tableClient = table.getServiceClient();
-		TableEntity currentEntity;
-		ArrayList<String> ret = new ArrayList<String>();
-		while ((currentEntity = GetSingleton(tableClient.execute(getNextKeyQuery))) != null) {
-			ret.add(currentEntity.getPartitionKey());
-			getNextKeyQuery = getFirstRowNoFields(table)
-					.where("PartitionKey gt '" + currentEntity.getPartitionKey() + "'");
+	private AzureTablePartitioner getPartitioner(Configuration job)
+			throws IOException {
+		Class<? extends AzureTablePartitioner> partitionerClass =
+				job.getClass(PARTITIONER_CLASS.getKey(),
+					DefaultTablePartitioner.class,
+					AzureTablePartitioner.class);
+		try {
+			return partitionerClass.newInstance();
+		} catch (InstantiationException e) {
+			throw new IOException(e);
+		} catch (IllegalAccessException e) {
+			throw new IOException(e);
 		}
-		return ret;
 	}
 
 	private static CloudTableClient createTableClient(Configuration job)
 			throws IOException {
-		String accountUriString = job.get(ACCOUNT_URI);
-		String storageKey = job.get(STORAGE_KEY);
+		String accountUriString = job.get(ACCOUNT_URI.getKey());
+		String storageKey = job.get(STORAGE_KEY.getKey());
 		URI accountUri;
 		try {
 			accountUri = new URI(accountUriString);
@@ -101,6 +108,10 @@ public class AzureTableInputFormat
 		return new CloudTableClient(accountUri, creds);
 	}
 
+	/**
+	 * A record reader that will read the rows from a given input
+	 * split.
+	 */
 	public static class TableRecordReader
 		extends RecordReader<Text, WritableEntity> {
 		private Iterator<WritableEntity> queryResults;
@@ -117,14 +128,11 @@ public class AzureTableInputFormat
 		public void initialize(InputSplit split,
 				TaskAttemptContext context)
 				throws IOException, InterruptedException {
-			String partitionKey = ((PartitionInputSplit)split).getPartitionKey();
 			Configuration job = context.getConfiguration();
 			CloudTableClient tableClient = createTableClient(job);
-			String tableName = job.get(TABLE_NAME);
+			String tableName = job.get(TABLE_NAME.getKey());
 			TableQuery<WritableEntity> query =
-					TableQuery
-					.from(tableName, WritableEntity.class)
-					.where("PartitionKey eq '" + partitionKey + "'");
+					((AzureTableInputSplit)split).getQuery(tableName);
 			queryResults = tableClient.execute(query).iterator();
 		}
 
@@ -159,7 +167,7 @@ public class AzureTableInputFormat
 			}
 			return currentKey;
 		}
-		
+
 		/**
 		 * Get the current value.
 		 * @return the object that was read
@@ -170,7 +178,7 @@ public class AzureTableInputFormat
 				throws IOException, InterruptedException {
 			return currentEntity;
 		}
-		
+
 		/**
 		 * The current progress of the record reader through its data.
 		 * @return a number between 0.0 and 1.0 that is the fraction of the data read
@@ -182,47 +190,11 @@ public class AzureTableInputFormat
 			// No idea...
 			return 0.5f;
 		}
-		
+
 		/**
 		 * Close the record reader.
 		 */
 		public void close() throws IOException {
-		}
-	}
-
-	public static class PartitionInputSplit extends InputSplit
-			implements Writable  {
-		private String partitionKey;
-
-		PartitionInputSplit() {}
-
-		public PartitionInputSplit(String partitionKey) {
-			this.partitionKey = partitionKey;
-		}
-		
-		public String getPartitionKey() {
-			return partitionKey;
-		}
-
-		@Override
-		public long getLength() throws IOException, InterruptedException {
-			// TODO No idea how to get the length.
-			return 0;
-		}
-
-		@Override
-		public String[] getLocations() throws IOException, InterruptedException {
-			return new String[] { "localhost" };
-		}
-
-		@Override
-		public void write(DataOutput out) throws IOException {
-			Text.writeString(out, partitionKey);
-		}
-
-		@Override
-		public void readFields(DataInput in) throws IOException {
-			partitionKey = Text.readString(in);
 		}
 	}
 }

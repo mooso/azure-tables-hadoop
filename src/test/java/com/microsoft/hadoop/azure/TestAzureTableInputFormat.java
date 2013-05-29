@@ -12,7 +12,6 @@ import org.junit.*;
 
 import com.microsoft.windowsazure.services.table.client.*;
 
-import static com.microsoft.hadoop.azure.AzureTableInputFormat.*;
 import static com.microsoft.hadoop.azure.TestUtils.*;
 
 public class TestAzureTableInputFormat {
@@ -24,37 +23,6 @@ public class TestAzureTableInputFormat {
 			t.delete();
 			t = null;
 		}
-	}
-
-	private static TableEntity newEntity(String partitionKey, String rowKey) {
-		HashMap<String, EntityProperty> properties =
-				new HashMap<String, EntityProperty>();
-		DynamicTableEntity ret = new DynamicTableEntity(properties);
-		ret.setPartitionKey(partitionKey);
-		ret.setRowKey(rowKey);
-		return ret;
-	}
-
-	private static void insertRow(CloudTable t, String partitionKey, String rowKey)
-			throws Exception{
-		t.getServiceClient().execute(t.getName(),
-				TableOperation.insert(newEntity(partitionKey, rowKey)));
-	}
-
-	@Test
-	public void testGetAllPartitionKeys() throws Exception {
-		CloudTableClient tableClient = createTableClient();
-		assumeNotNull(tableClient);
-		t = createTable(tableClient);
-		insertRow(t, "p1", "r1");
-		insertRow(t, "p1", "r2");
-		insertRow(t, "p2", "r1");
-		insertRow(t, "p3", "r1");
-		List<String> partitionKeys = AzureTableInputFormat.getAllPartitionKeys(t);
-		assertEquals(3, partitionKeys.size());
-		assertEquals("p1", partitionKeys.get(0));
-		assertEquals("p2", partitionKeys.get(1));
-		assertEquals("p3", partitionKeys.get(2));
 	}
 
 	@Test

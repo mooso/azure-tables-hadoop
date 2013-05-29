@@ -44,4 +44,19 @@ public class TestUtils {
 	public static String getAccountName() {
 		return System.getProperty("test.account.name");
 	}
+
+	private static TableEntity newEntity(String partitionKey, String rowKey) {
+		HashMap<String, EntityProperty> properties =
+				new HashMap<String, EntityProperty>();
+		DynamicTableEntity ret = new DynamicTableEntity(properties);
+		ret.setPartitionKey(partitionKey);
+		ret.setRowKey(rowKey);
+		return ret;
+	}
+
+	public static void insertRow(CloudTable t, String partitionKey, String rowKey)
+			throws Exception{
+		t.getServiceClient().execute(t.getName(),
+				TableOperation.insert(newEntity(partitionKey, rowKey)));
+	}
 }

@@ -7,11 +7,17 @@ import org.apache.hadoop.io.Writable;
 
 import com.microsoft.windowsazure.services.table.client.*;
 
+/**
+ * A representation of an Azure Table that implements
+ * {@link org.apache.hadoop.io.Writable} so it can be processed by Hadoop. 
+ */
 public class WritableEntity extends DynamicTableEntity implements Writable {
 	@Override
 	public void readFields(DataInput input) throws IOException {
+		// Read the partition and row keys.
 		setPartitionKey(input.readUTF());
 		setRowKey(input.readUTF());
+		// Read the rest of the properties.
 		int numProperties = input.readInt();
 		HashMap<String, EntityProperty> properties =
 				new HashMap<String, EntityProperty>();
@@ -24,8 +30,10 @@ public class WritableEntity extends DynamicTableEntity implements Writable {
 
 	@Override
 	public void write(DataOutput output) throws IOException {
+		// Write the partition and row keys.
 		output.writeUTF(getPartitionKey());
 		output.writeUTF(getRowKey());
+		// Write the rest of the properties.
 		HashMap<String, EntityProperty> properties =
 				getProperties();
 		output.writeInt(properties.size());
