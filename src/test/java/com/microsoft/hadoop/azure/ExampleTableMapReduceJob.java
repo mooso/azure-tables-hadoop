@@ -68,7 +68,7 @@ public class ExampleTableMapReduceJob extends Configured
 			System.out.println("Populating data...");
 			populate(t);
 			System.out.println("Done!");
-			AzureTableInputFormat.configureInputTable(getConf(), t.getName(),
+			AzureTableConfiguration.configureInputTable(getConf(), t.getName(),
 					getAccountUri(), getAccountKey());
 			Job job = new Job(getConf());
 			job.setJarByClass(getClass());

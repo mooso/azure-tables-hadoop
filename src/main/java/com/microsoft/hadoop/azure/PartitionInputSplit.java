@@ -6,7 +6,7 @@ import org.apache.hadoop.io.*;
 
 import com.microsoft.windowsazure.services.table.client.TableQuery;
 
-public class PartitionInputSplit extends AzureTableInputSplit implements Writable {
+public class PartitionInputSplit extends AzureTableInputSplit {
 	private String partitionKey;
 	
 	PartitionInputSplit() {}
@@ -20,7 +20,7 @@ public class PartitionInputSplit extends AzureTableInputSplit implements Writabl
 	}
 	
 	@Override
-	public long getLength() throws IOException, InterruptedException {
+	public long getLength() throws IOException {
 		// No idea how to get the length.
 		return 0;
 	}

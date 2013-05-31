@@ -31,7 +31,7 @@ public class TestAzureTableInputFormat {
 		assumeNotNull(tableClient);
 		t = createTable(tableClient);
 		Configuration conf = new Configuration();
-		AzureTableInputFormat.configureInputTable(conf,
+		AzureTableConfiguration.configureInputTable(conf,
 				t.getName(), getAccountUri(), getAccountKey());
 		AzureTableInputFormat inputFormat = new AzureTableInputFormat();
 		JobContext jobContext = new JobContext(conf, new JobID("jt", 5));
@@ -60,7 +60,7 @@ public class TestAzureTableInputFormat {
 		insertRow(t, "p1", "r2");
 
 		Configuration conf = new Configuration();
-		AzureTableInputFormat.configureInputTable(conf,
+		AzureTableConfiguration.configureInputTable(conf,
 				t.getName(), getAccountUri(), getAccountKey());
 		AzureTableInputFormat inputFormat = new AzureTableInputFormat();
 		JobContext jobContext = new JobContext(conf, new JobID("jt", 5));
