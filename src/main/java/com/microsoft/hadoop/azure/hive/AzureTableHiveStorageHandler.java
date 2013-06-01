@@ -29,7 +29,6 @@ public class AzureTableHiveStorageHandler
 			boolean required) {
 		String value = tableProperties.getProperty(propertyToTransfer.getKey());
 		if (value != null) {
-			System.out.printf("Putting: %s = %s\n", propertyToTransfer.getKey(), value);
 			jobProperties.put(propertyToTransfer.getKey(), value);
 		} else if (required) {
 			throw new IllegalArgumentException("Property " + propertyToTransfer.getKey() +
