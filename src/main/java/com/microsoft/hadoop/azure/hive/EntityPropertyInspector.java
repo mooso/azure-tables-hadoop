@@ -14,15 +14,13 @@ public abstract class EntityPropertyInspector implements PrimitiveObjectInspecto
 	@SuppressWarnings("serial")
 	private static final Map<String, EntityPropertyInspector> typeToInspector =
     Collections.unmodifiableMap(new HashMap<String, EntityPropertyInspector>() {{
-//        put(STRING_TYPE_NAME, javaStringObjectInspector);
-//        put(TINYINT_TYPE_NAME, javaByteObjectInspector);
-//        put(SMALLINT_TYPE_NAME, javaShortObjectInspector);
+        put(STRING_TYPE_NAME, new StringEntityPropertyInspector());
         put(INT_TYPE_NAME, new IntEntityPropertyInspector());
-//        put(BIGINT_TYPE_NAME, javaLongObjectInspector);
-//        put(FLOAT_TYPE_NAME, javaFloatObjectInspector);
-//        put(DOUBLE_TYPE_NAME, javaDoubleObjectInspector);
-//        put(BOOLEAN_TYPE_NAME, javaBooleanObjectInspector);
-//        put(DECIMAL_TYPE_NAME, javaHiveDecimalObjectInspector);
+        put(BIGINT_TYPE_NAME, new LongEntityPropertyInspector());
+        put(DOUBLE_TYPE_NAME, new DoubleEntityPropertyInspector());
+        put(BOOLEAN_TYPE_NAME, new BooleanEntityPropertyInspector());
+
+        // Consider adding support for {tinyint, smallint, float, decimal}
     }});
 	
 	public static EntityPropertyInspector getInspectorForType(String typeName)
@@ -92,6 +90,134 @@ public abstract class EntityPropertyInspector implements PrimitiveObjectInspecto
 		@Override
 		public Object getPrimitiveWritableObject(EntityProperty property) {
 			return new IntWritable(property.getValueAsInteger());
+		}
+	}
+
+	public static class StringEntityPropertyInspector extends EntityPropertyInspector {
+		@Override
+		public Class<?> getJavaPrimitiveClass() {
+			return String.class;
+		}
+
+		@Override
+		public PrimitiveCategory getPrimitiveCategory() {
+			return PrimitiveCategory.STRING;
+		}
+
+		@Override
+		public Class<?> getPrimitiveWritableClass() {
+			return Text.class;
+		}
+
+		@Override
+		public String getTypeName() {
+			return STRING_TYPE_NAME;
+		}
+
+		@Override
+		public Object getPrimitiveJavaObject(EntityProperty property) {
+			return property.getValueAsString();
+		}
+
+		@Override
+		public Object getPrimitiveWritableObject(EntityProperty property) {
+			return new Text(property.getValueAsString());
+		}
+	}
+
+	public static class BooleanEntityPropertyInspector extends EntityPropertyInspector {
+		@Override
+		public Class<?> getJavaPrimitiveClass() {
+			return Boolean.TYPE;
+		}
+
+		@Override
+		public PrimitiveCategory getPrimitiveCategory() {
+			return PrimitiveCategory.BOOLEAN;
+		}
+
+		@Override
+		public Class<?> getPrimitiveWritableClass() {
+			return BooleanWritable.class;
+		}
+
+		@Override
+		public String getTypeName() {
+			return BOOLEAN_TYPE_NAME;
+		}
+
+		@Override
+		public Object getPrimitiveJavaObject(EntityProperty property) {
+			return property.getValueAsBoolean();
+		}
+
+		@Override
+		public Object getPrimitiveWritableObject(EntityProperty property) {
+			return new BooleanWritable(property.getValueAsBoolean());
+		}
+	}
+
+	public static class LongEntityPropertyInspector extends EntityPropertyInspector {
+		@Override
+		public Class<?> getJavaPrimitiveClass() {
+			return Long.TYPE;
+		}
+
+		@Override
+		public PrimitiveCategory getPrimitiveCategory() {
+			return PrimitiveCategory.LONG;
+		}
+
+		@Override
+		public Class<?> getPrimitiveWritableClass() {
+			return LongWritable.class;
+		}
+
+		@Override
+		public String getTypeName() {
+			return BIGINT_TYPE_NAME;
+		}
+
+		@Override
+		public Object getPrimitiveJavaObject(EntityProperty property) {
+			return property.getValueAsLong();
+		}
+
+		@Override
+		public Object getPrimitiveWritableObject(EntityProperty property) {
+			return new LongWritable(property.getValueAsLong());
+		}
+	}
+
+	public static class DoubleEntityPropertyInspector extends EntityPropertyInspector {
+		@Override
+		public Class<?> getJavaPrimitiveClass() {
+			return Double.TYPE;
+		}
+
+		@Override
+		public PrimitiveCategory getPrimitiveCategory() {
+			return PrimitiveCategory.DOUBLE;
+		}
+
+		@Override
+		public Class<?> getPrimitiveWritableClass() {
+			return DoubleWritable.class;
+		}
+
+		@Override
+		public String getTypeName() {
+			return DOUBLE_TYPE_NAME;
+		}
+
+		@Override
+		public Object getPrimitiveJavaObject(EntityProperty property) {
+			return property.getValueAsDouble();
+		}
+
+		@Override
+		public Object getPrimitiveWritableObject(EntityProperty property) {
+			return new DoubleWritable(property.getValueAsDouble());
 		}
 	}
 }
