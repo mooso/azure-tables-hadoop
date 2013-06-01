@@ -5,6 +5,7 @@ import static com.microsoft.hadoop.azure.AzureTableConfiguration.*;
 import java.io.*;
 import java.util.ArrayList;
 
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapred.*;
 
@@ -17,7 +18,7 @@ public class OldAzureTableInputFormat implements InputFormat<Text, WritableEntit
 	@Override
 	public RecordReader<Text, WritableEntity> getRecordReader(InputSplit split,
 			JobConf job, Reporter reporter) throws IOException {
-		return new OldAzureTableReader((AzureTableInputSplit)split, job);
+		return new OldAzureTableReader((WrapperSplit)split, job);
 	}
 
 	@Override
@@ -25,8 +26,9 @@ public class OldAzureTableInputFormat implements InputFormat<Text, WritableEntit
 		AzureTablePartitioner partitioner = getPartitioner(job);
 		CloudTable table = getTableReference(job);
 		ArrayList<InputSplit> ret = new ArrayList<InputSplit>();
+    Path [] tablePaths = FileInputFormat.getInputPaths(job);
 		for (AzureTableInputSplit split : partitioner.getSplits(table)) {
-			ret.add(split);
+			ret.add(new WrapperSplit(split, tablePaths[0], job));
 		}
 		return ret.toArray(new InputSplit[0]);
 	}

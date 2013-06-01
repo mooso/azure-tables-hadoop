@@ -25,10 +25,15 @@ public class AzureTableHiveStorageHandler
 
 	private static void transferProperty(final Properties tableProperties,
 			final Map<String, String> jobProperties,
-			Keys propertyToTransfer) {
+			Keys propertyToTransfer,
+			boolean required) {
 		String value = tableProperties.getProperty(propertyToTransfer.getKey());
 		if (value != null) {
+			System.out.printf("Putting: %s = %s\n", propertyToTransfer.getKey(), value);
 			jobProperties.put(propertyToTransfer.getKey(), value);
+		} else if (required) {
+			throw new IllegalArgumentException("Property " + propertyToTransfer.getKey() +
+					" not found in the table properties.");
 		}
 	}
 
@@ -37,10 +42,10 @@ public class AzureTableHiveStorageHandler
 			Map<String, String> jobProperties) {
     Properties tableProperties = tableDesc.getProperties();
 
-    transferProperty(tableProperties, jobProperties, Keys.TABLE_NAME);
-    transferProperty(tableProperties, jobProperties, Keys.ACCOUNT_URI);
-    transferProperty(tableProperties, jobProperties, Keys.STORAGE_KEY);
-    transferProperty(tableProperties, jobProperties, Keys.PARTITIONER_CLASS);
+    transferProperty(tableProperties, jobProperties, Keys.TABLE_NAME, true);
+    transferProperty(tableProperties, jobProperties, Keys.ACCOUNT_URI, true);
+    transferProperty(tableProperties, jobProperties, Keys.STORAGE_KEY, true);
+    transferProperty(tableProperties, jobProperties, Keys.PARTITIONER_CLASS, false);
 	}
 
 	@Override

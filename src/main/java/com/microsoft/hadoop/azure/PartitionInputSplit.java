@@ -20,12 +20,6 @@ public class PartitionInputSplit extends AzureTableInputSplit {
 	}
 	
 	@Override
-	public long getLength() throws IOException {
-		// No idea how to get the length.
-		return 0;
-	}
-	
-	@Override
 	public void write(DataOutput out) throws IOException {
 		Text.writeString(out, partitionKey);
 	}

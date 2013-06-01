@@ -18,12 +18,12 @@ public class OldAzureTableReader implements RecordReader<Text, WritableEntity> {
 	private Iterator<WritableEntity> queryResults;
 	private long pos;
 	
-	OldAzureTableReader(AzureTableInputSplit split, Configuration conf)
+	OldAzureTableReader(WrapperSplit split, Configuration conf)
 			throws IOException {
 		CloudTableClient tableClient = createTableClient(conf);
 		String tableName = getTableName(conf);
 		TableQuery<WritableEntity> query =
-				((AzureTableInputSplit)split).getQuery(tableName);
+				split.getWrappedSplit().getQuery(tableName);
 		queryResults = tableClient.execute(query).iterator();
 	}
 
