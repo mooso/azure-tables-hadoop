@@ -69,7 +69,7 @@ public class AzureTableConfiguration {
 	public static CloudTable getTableReference(Configuration job)
 			throws IOException {
 		CloudTableClient tableClient = createTableClient(job);
-		String tableName = job.get(getTableName(job));
+		String tableName = getTableName(job);
 		try {
 			return tableClient.getTableReference(tableName);
 		} catch (URISyntaxException e) {
