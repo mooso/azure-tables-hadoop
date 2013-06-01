@@ -29,6 +29,19 @@ class PrimitiveField implements StructField {
 	}
 
 	public Object getData(DynamicTableEntity entity) {
-		return inspector.getPrimitiveJavaObject(entity.getProperties().get(name));
+		Object value = entity.getProperties().get(name);
+		if (value == null) {
+			// Look for it ignoring case
+			for (String key : entity.getProperties().keySet()) {
+				if (key.equalsIgnoreCase(name)) {
+					value = entity.getProperties().get(key);
+					break;
+				}
+			}
+			if (value == null) {
+				throw new IllegalArgumentException("No property found with name " + name);
+			}
+		}
+		return inspector.getPrimitiveJavaObject(value);
 	}
 }

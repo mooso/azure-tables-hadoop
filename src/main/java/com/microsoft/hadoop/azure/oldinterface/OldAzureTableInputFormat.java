@@ -17,8 +17,7 @@ public class OldAzureTableInputFormat implements InputFormat<Text, WritableEntit
 	@Override
 	public RecordReader<Text, WritableEntity> getRecordReader(InputSplit split,
 			JobConf job, Reporter reporter) throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		return new OldAzureTableReader((AzureTableInputSplit)split, job);
 	}
 
 	@Override

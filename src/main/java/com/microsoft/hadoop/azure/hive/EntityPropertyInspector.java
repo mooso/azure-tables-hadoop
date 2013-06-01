@@ -1,11 +1,16 @@
 package com.microsoft.hadoop.azure.hive;
 
-import static org.apache.hadoop.hive.serde.serdeConstants.*;
+import static org.apache.hadoop.hive.serde.Constants.*;
 
 import java.util.*;
 
 import org.apache.hadoop.hive.serde2.SerDeException;
 import org.apache.hadoop.hive.serde2.objectinspector.*;
+import org.apache.hadoop.hive.serde2.objectinspector.primitive.BooleanObjectInspector;
+import org.apache.hadoop.hive.serde2.objectinspector.primitive.DoubleObjectInspector;
+import org.apache.hadoop.hive.serde2.objectinspector.primitive.IntObjectInspector;
+import org.apache.hadoop.hive.serde2.objectinspector.primitive.LongObjectInspector;
+import org.apache.hadoop.hive.serde2.objectinspector.primitive.StringObjectInspector;
 import org.apache.hadoop.io.*;
 
 import com.microsoft.windowsazure.services.table.client.EntityProperty;
@@ -48,20 +53,8 @@ public abstract class EntityPropertyInspector implements PrimitiveObjectInspecto
 		return o;
 	}
 
-	@Override
-	public final Object getPrimitiveJavaObject(Object property) {
-		return getPrimitiveJavaObject((EntityProperty)property);
-	}
-
-	@Override
-	public final Object getPrimitiveWritableObject(Object property) {
-		return getPrimitiveWritableObject((EntityProperty)property);
-	}
-
-	public abstract Object getPrimitiveJavaObject(EntityProperty property);
-	public abstract Object getPrimitiveWritableObject(EntityProperty property);
-
-	public static class IntEntityPropertyInspector extends EntityPropertyInspector {
+	public static class IntEntityPropertyInspector extends EntityPropertyInspector
+			implements IntObjectInspector {
 		@Override
 		public Class<?> getJavaPrimitiveClass() {
 			return Integer.TYPE;
@@ -83,17 +76,23 @@ public abstract class EntityPropertyInspector implements PrimitiveObjectInspecto
 		}
 
 		@Override
-		public Object getPrimitiveJavaObject(EntityProperty property) {
-			return property.getValueAsInteger();
+		public Object getPrimitiveJavaObject(Object property) {
+			return ((EntityProperty)property).getValueAsInteger();
 		}
 
 		@Override
-		public Object getPrimitiveWritableObject(EntityProperty property) {
-			return new IntWritable(property.getValueAsInteger());
+		public Object getPrimitiveWritableObject(Object property) {
+			return new IntWritable(((EntityProperty)property).getValueAsInteger());
+		}
+
+		@Override
+		public int get(Object value) {
+			return (Integer)value;
 		}
 	}
 
-	public static class StringEntityPropertyInspector extends EntityPropertyInspector {
+	public static class StringEntityPropertyInspector extends EntityPropertyInspector
+			implements StringObjectInspector {
 		@Override
 		public Class<?> getJavaPrimitiveClass() {
 			return String.class;
@@ -115,17 +114,18 @@ public abstract class EntityPropertyInspector implements PrimitiveObjectInspecto
 		}
 
 		@Override
-		public Object getPrimitiveJavaObject(EntityProperty property) {
-			return property.getValueAsString();
+		public String getPrimitiveJavaObject(Object property) {
+			return ((EntityProperty)property).getValueAsString();
 		}
 
 		@Override
-		public Object getPrimitiveWritableObject(EntityProperty property) {
-			return new Text(property.getValueAsString());
+		public Text getPrimitiveWritableObject(Object value) {
+			return new Text((String)value);
 		}
 	}
 
-	public static class BooleanEntityPropertyInspector extends EntityPropertyInspector {
+	public static class BooleanEntityPropertyInspector extends EntityPropertyInspector
+			implements BooleanObjectInspector {
 		@Override
 		public Class<?> getJavaPrimitiveClass() {
 			return Boolean.TYPE;
@@ -147,17 +147,23 @@ public abstract class EntityPropertyInspector implements PrimitiveObjectInspecto
 		}
 
 		@Override
-		public Object getPrimitiveJavaObject(EntityProperty property) {
-			return property.getValueAsBoolean();
+		public Object getPrimitiveJavaObject(Object property) {
+			return ((EntityProperty)property).getValueAsBoolean();
 		}
 
 		@Override
-		public Object getPrimitiveWritableObject(EntityProperty property) {
-			return new BooleanWritable(property.getValueAsBoolean());
+		public Object getPrimitiveWritableObject(Object property) {
+			return new BooleanWritable(((EntityProperty)property).getValueAsBoolean());
+		}
+
+		@Override
+		public boolean get(Object value) {
+			return (Boolean)value;
 		}
 	}
 
-	public static class LongEntityPropertyInspector extends EntityPropertyInspector {
+	public static class LongEntityPropertyInspector extends EntityPropertyInspector
+			implements LongObjectInspector {
 		@Override
 		public Class<?> getJavaPrimitiveClass() {
 			return Long.TYPE;
@@ -179,17 +185,23 @@ public abstract class EntityPropertyInspector implements PrimitiveObjectInspecto
 		}
 
 		@Override
-		public Object getPrimitiveJavaObject(EntityProperty property) {
-			return property.getValueAsLong();
+		public Object getPrimitiveJavaObject(Object property) {
+			return ((EntityProperty)property).getValueAsLong();
 		}
 
 		@Override
-		public Object getPrimitiveWritableObject(EntityProperty property) {
-			return new LongWritable(property.getValueAsLong());
+		public Object getPrimitiveWritableObject(Object property) {
+			return new LongWritable(((EntityProperty)property).getValueAsLong());
+		}
+
+		@Override
+		public long get(Object value) {
+			return (Long)value;
 		}
 	}
 
-	public static class DoubleEntityPropertyInspector extends EntityPropertyInspector {
+	public static class DoubleEntityPropertyInspector extends EntityPropertyInspector
+			implements DoubleObjectInspector {
 		@Override
 		public Class<?> getJavaPrimitiveClass() {
 			return Double.TYPE;
@@ -211,13 +223,18 @@ public abstract class EntityPropertyInspector implements PrimitiveObjectInspecto
 		}
 
 		@Override
-		public Object getPrimitiveJavaObject(EntityProperty property) {
-			return property.getValueAsDouble();
+		public Object getPrimitiveJavaObject(Object property) {
+			return ((EntityProperty)property).getValueAsDouble();
 		}
 
 		@Override
-		public Object getPrimitiveWritableObject(EntityProperty property) {
-			return new DoubleWritable(property.getValueAsDouble());
+		public Object getPrimitiveWritableObject(Object property) {
+			return new DoubleWritable(((EntityProperty)property).getValueAsDouble());
+		}
+
+		@Override
+		public double get(Object value) {
+			return (Double)value;
 		}
 	}
 }
