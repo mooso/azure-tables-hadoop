@@ -4,6 +4,9 @@ import org.apache.hadoop.hive.serde2.objectinspector.*;
 
 import com.microsoft.windowsazure.services.table.client.*;
 
+/**
+ * A field in an Azure Tables entity.
+ */
 class PrimitiveField implements StructField {
 	private final EntityPropertyInspector inspector;
 	private final String name;
@@ -31,7 +34,7 @@ class PrimitiveField implements StructField {
 	public Object getData(DynamicTableEntity entity) {
 		Object value = entity.getProperties().get(name);
 		if (value == null) {
-			// Look for it ignoring case
+			// Look for it ignoring case (Hive normalizes to lower case).
 			for (String key : entity.getProperties().keySet()) {
 				if (key.equalsIgnoreCase(name)) {
 					value = entity.getProperties().get(key);

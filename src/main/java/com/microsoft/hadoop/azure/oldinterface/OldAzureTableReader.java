@@ -14,10 +14,17 @@ import com.microsoft.hadoop.azure.*;
 import com.microsoft.windowsazure.services.table.client.CloudTableClient;
 import com.microsoft.windowsazure.services.table.client.TableQuery;
 
+/**
+ * A record reader using the old mapred.* API that reads entities
+ * from Azure Tables.
+ */
 public class OldAzureTableReader implements RecordReader<Text, WritableEntity> {
 	private Iterator<WritableEntity> queryResults;
 	private long pos;
-	
+
+	/**
+	 * Create the reader for the given split.
+	 */
 	OldAzureTableReader(WrapperSplit split, Configuration conf)
 			throws IOException {
 		CloudTableClient tableClient = createTableClient(conf);
@@ -60,6 +67,7 @@ public class OldAzureTableReader implements RecordReader<Text, WritableEntity> {
 			value.setPartitionKey(obtained.getPartitionKey());
 			value.setRowKey(obtained.getRowKey());
 			value.setProperties(obtained.getProperties());
+			pos++;
 			return true;
 		} else {
 			return false;

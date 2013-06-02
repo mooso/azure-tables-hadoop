@@ -6,17 +6,20 @@ import java.util.*;
 
 import org.apache.hadoop.hive.serde2.SerDeException;
 import org.apache.hadoop.hive.serde2.objectinspector.*;
-import org.apache.hadoop.hive.serde2.objectinspector.primitive.BooleanObjectInspector;
-import org.apache.hadoop.hive.serde2.objectinspector.primitive.DoubleObjectInspector;
-import org.apache.hadoop.hive.serde2.objectinspector.primitive.IntObjectInspector;
-import org.apache.hadoop.hive.serde2.objectinspector.primitive.LongObjectInspector;
-import org.apache.hadoop.hive.serde2.objectinspector.primitive.StringObjectInspector;
+import org.apache.hadoop.hive.serde2.objectinspector.primitive.*;
 import org.apache.hadoop.io.*;
 
 import com.microsoft.windowsazure.services.table.client.EntityProperty;
 
+/**
+ * An object inspector that knows how to extract values from
+ * {link com.microsoft.windowsazure.services.table.client.EntityProperty}.
+ */
 public abstract class EntityPropertyInspector implements PrimitiveObjectInspector {
 	@SuppressWarnings("serial")
+	/**
+	 * A map that gets the appropriate inspector for a given Hive type name.
+	 */
 	private static final Map<String, EntityPropertyInspector> typeToInspector =
     Collections.unmodifiableMap(new HashMap<String, EntityPropertyInspector>() {{
         put(STRING_TYPE_NAME, new StringEntityPropertyInspector());
@@ -27,7 +30,10 @@ public abstract class EntityPropertyInspector implements PrimitiveObjectInspecto
 
         // Consider adding support for {tinyint, smallint, float, decimal}
     }});
-	
+
+	/**
+	 * Gets the appropriate inspector for the given type name.
+	 */
 	public static EntityPropertyInspector getInspectorForType(String typeName)
 			throws SerDeException  {
 		EntityPropertyInspector ret = typeToInspector.get(typeName);

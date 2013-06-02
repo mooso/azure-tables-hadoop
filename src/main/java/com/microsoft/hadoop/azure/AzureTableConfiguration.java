@@ -59,9 +59,7 @@ public class AzureTableConfiguration {
 					AzureTablePartitioner.class);
 		try {
 			return partitionerClass.newInstance();
-		} catch (InstantiationException e) {
-			throw new IOException(e);
-		} catch (IllegalAccessException e) {
+		} catch (Exception e) {
 			throw new IOException(e);
 		}
 	}
@@ -82,7 +80,15 @@ public class AzureTableConfiguration {
 	public static CloudTableClient createTableClient(Configuration job)
 			throws IOException {
 		String accountUriString = job.get(Keys.ACCOUNT_URI.getKey());
+		if (accountUriString == null) {
+			throw new IllegalArgumentException(
+					Keys.ACCOUNT_URI.getKey() + " not specified.");
+		}
 		String storageKey = job.get(Keys.STORAGE_KEY.getKey());
+		if (storageKey == null) {
+			throw new IllegalArgumentException(
+					Keys.STORAGE_KEY.getKey() + " not specified.");
+		}
 		URI accountUri;
 		try {
 			accountUri = new URI(accountUriString);

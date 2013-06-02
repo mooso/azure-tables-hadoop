@@ -19,10 +19,21 @@ import org.apache.hadoop.util.Progressable;
 
 import com.microsoft.hadoop.azure.oldinterface.OldAzureTableInputFormat;
 
+/**
+ * A storage handler to connect Azure Tables to Hive.
+ */
 public class AzureTableHiveStorageHandler
 		extends Configured
 		implements HiveStorageHandler {
 
+	/**
+	 * Moves a configuration from table properties to the job configuration.
+	 * @param tableProperties The table properties.
+	 * @param jobProperties The job configuration.
+	 * @param propertyToTransfer The property to transfer.
+	 * @param required If set, then we'll throw if the property isn't specified in the
+	 *                 job configuration.
+	 */
 	private static void transferProperty(final Properties tableProperties,
 			final Map<String, String> jobProperties,
 			Keys propertyToTransfer,
@@ -36,6 +47,10 @@ public class AzureTableHiveStorageHandler
 		}
 	}
 
+	/**
+	 * Configure the properties for an MR job where we'll read from
+	 * an Azure Table.
+	 */
 	@Override
 	public void configureInputJobProperties(TableDesc tableDesc,
 			Map<String, String> jobProperties) {
@@ -47,11 +62,19 @@ public class AzureTableHiveStorageHandler
     transferProperty(tableProperties, jobProperties, Keys.PARTITIONER_CLASS, false);
 	}
 
+	/**
+	 * Configure the properties for an MR job where we'll write to
+	 * an Azure Table.
+	 */
 	@Override
 	public void configureOutputJobProperties(TableDesc tableDesc,
 			Map<String, String> jobProperties) {
+		// Not yet implemented...
 	}
 
+	/**
+	 * Deprecated - should never be called.
+	 */
 	@Override
 	@Deprecated
 	public void configureTableJobProperties(TableDesc tableDesc,
@@ -59,53 +82,76 @@ public class AzureTableHiveStorageHandler
 		throw new AssertionError("Shouldn't be called.");
 	}
 
+	/**
+	 * No idea what this is for.
+	 */
 	@Override
 	public HiveAuthorizationProvider getAuthorizationProvider()
 			throws HiveException {
 		return null;
 	}
 
+	/**
+	 * Gets the input format class.
+	 */
 	@SuppressWarnings({ "rawtypes", "deprecation" })
 	@Override
 	public Class<? extends InputFormat> getInputFormatClass() {
 		return OldAzureTableInputFormat.class;
 	}
 
+	/**
+	 * Option ability to hook into metadata operations.
+	 */
 	@Override
 	public HiveMetaHook getMetaHook() {
 		return null;
 	}
 
+	/**
+	 * Gets the output format class, used to write to the Azure Table.
+	 */
 	@SuppressWarnings({ "rawtypes", "deprecation" })
 	@Override
 	public Class<? extends OutputFormat> getOutputFormatClass() {
-		return NotImplementedOutputFormat.class; // BOGUS
+		// Not yet implemented, but if we return null then the create
+		// table statement will fail. Return a dummy implementation that'll
+		// throw if ever actually used.
+		return NotImplementedOutputFormat.class;
 	}
 
+	/**
+	 * Gets the SerDe that'll interpret the values coming out the
+	 * of the input format.
+	 */
 	@Override
 	public Class<? extends SerDe> getSerDeClass() {
 		return AzureEntitySerDe.class;
 	}
-	
+
+	/**
+	 * Dummy implementation of output format.
+	 */
 	@SuppressWarnings({ "rawtypes", "deprecation" })
 	public static class NotImplementedOutputFormat implements HiveOutputFormat {
 
 		@Override
-		public void checkOutputSpecs(FileSystem arg0, JobConf arg1)
+		public void checkOutputSpecs(FileSystem ignored, JobConf job)
 				throws IOException {
 			throw new NotImplementedException();
 		}
 
 		@Override
-		public RecordWriter getRecordWriter(FileSystem arg0, JobConf arg1,
-				String arg2, Progressable arg3) throws IOException {
+		public RecordWriter getRecordWriter(FileSystem ignored, JobConf job,
+				String name, Progressable progress) throws IOException {
 			throw new NotImplementedException();
 		}
 
 		@Override
 		public org.apache.hadoop.hive.ql.exec.FileSinkOperator.RecordWriter getHiveRecordWriter(
-				JobConf arg0, Path arg1, Class arg2, boolean arg3, Properties arg4,
-				Progressable arg5) throws IOException {
+				JobConf job, Path finalOutPath, Class valueClass,
+				boolean isCompressed, Properties tableProperties,
+				Progressable progress) throws IOException {
 			throw new NotImplementedException();
 		}
 		
