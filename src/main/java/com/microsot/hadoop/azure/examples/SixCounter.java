@@ -24,6 +24,7 @@ public class SixCounter extends Configured
 	implements Tool {
 	private static final long NUM_PARTITIONS = 5;
 	private static final long NUM_ROWS_PER_PARTITION = 1000;
+	private static final long MAX_ROWS_PER_BATCH = 100;
 
 	private static TableEntity newEntity(String partitionKey,
 			String rowKey, long data) {
@@ -41,13 +42,22 @@ public class SixCounter extends Configured
 		Random rand = new Random();
 		for (int partition = 0; partition < NUM_PARTITIONS; partition ++) {
 			TableBatchOperation batch = new TableBatchOperation();
+			int rowsInBatch = 0;
 			for (int row = 0; row < NUM_ROWS_PER_PARTITION; row++) {
 				batch.add(TableOperation.insert(newEntity(
 						"p" + partition,
 						"r" + row,
 						rand.nextInt(100))));
+				rowsInBatch++;
+				if (rowsInBatch >= MAX_ROWS_PER_BATCH) {
+					t.getServiceClient().execute(t.getName(), batch);
+					batch = new TableBatchOperation();
+					rowsInBatch = 0;
+				}
 			}
-			t.getServiceClient().execute(t.getName(), batch);
+			if (rowsInBatch > 0) {
+				t.getServiceClient().execute(t.getName(), batch);
+			}
 		}
 	}
 
@@ -110,6 +120,7 @@ public class SixCounter extends Configured
 			} else {
 				return 3;
 			}
+			fs.delete(output, true);
 		} finally {
 			t.delete();
 		}
