@@ -1,4 +1,4 @@
-package com.microsot.hadoop.azure.examples;
+package com.microsoft.hadoop.azure.examples;
 
 import java.io.*;
 import java.util.*;
