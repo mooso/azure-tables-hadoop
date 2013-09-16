@@ -37,11 +37,11 @@ public abstract class EntityPropertyInspector implements PrimitiveObjectInspecto
 	public static EntityPropertyInspector getInspectorForType(String typeName)
 			throws SerDeException  {
 		EntityPropertyInspector ret = typeToInspector.get(typeName);
-    if (ret != null) {
-    	return ret;
-    } else {
-       throw new SerDeException("Type " + typeName + " not allowed.");
-     }
+		if (ret != null) {
+			return ret;
+		} else {
+			throw new SerDeException("Type " + typeName + " not allowed.");
+		}
 	}
 
 	@Override
