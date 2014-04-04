@@ -17,7 +17,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.microsoft.hadoop</groupId>
   <artifactId>microsoft-hadoop-azure</artifactId>
-  <version>0.0.1</version>
+  <version>0.0.2</version>
   <packaging>jar</packaging>
 
   <name>Microsoft Hadoop Azure Connectors</name>
