@@ -9,7 +9,7 @@ import org.junit.*;
 
 
 import com.microsoft.hadoop.azure.WritableEntity;
-import com.microsoft.windowsazure.services.table.client.EntityProperty;
+import com.microsoft.windowsazure.storage.table.*;
 
 import static org.junit.Assert.*;
 

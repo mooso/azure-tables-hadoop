@@ -10,7 +10,8 @@ import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapred.*;
 
 import com.microsoft.hadoop.azure.*;
-import com.microsoft.windowsazure.services.table.client.*;
+import com.microsoft.windowsazure.storage.*;
+import com.microsoft.windowsazure.storage.table.*;
 
 /**
  * An input format using the deprecated mapred.* API for reading Azure Tables.
@@ -31,8 +32,12 @@ public class OldAzureTableInputFormat implements InputFormat<Text, WritableEntit
 		CloudTable table = getTableReference(job);
 		ArrayList<InputSplit> ret = new ArrayList<InputSplit>();
     Path [] tablePaths = FileInputFormat.getInputPaths(job);
-		for (AzureTableInputSplit split : partitioner.getSplits(table)) {
-			ret.add(new WrapperSplit(split, tablePaths[0], job));
+		try {
+			for (AzureTableInputSplit split : partitioner.getSplits(table)) {
+				ret.add(new WrapperSplit(split, tablePaths[0], job));
+			}
+		} catch (StorageException e) {
+			throw new IOException(e);
 		}
 		return ret.toArray(new InputSplit[0]);
 	}

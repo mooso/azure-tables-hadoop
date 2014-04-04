@@ -3,13 +3,15 @@ package com.microsoft.hadoop.azure;
 import static com.microsoft.hadoop.azure.AzureTableConfiguration.*;
 
 import java.io.*;
+import java.net.URISyntaxException;
 import java.util.*;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapreduce.*;
 
-import com.microsoft.windowsazure.services.table.client.*;
+import com.microsoft.windowsazure.storage.StorageException;
+import com.microsoft.windowsazure.storage.table.*;
 
 /**
  * A record reader that will read the rows from a given input
@@ -35,8 +37,14 @@ public class AzureTableRecordReader
 		CloudTableClient tableClient = createTableClient(job);
 		String tableName = getTableName(job);
 		TableQuery<WritableEntity> query =
-				((AzureTableInputSplit)split).getQuery(tableName);
-		queryResults = tableClient.execute(query).iterator();
+				((AzureTableInputSplit)split).getQuery();
+		try {
+			queryResults = tableClient.getTableReference(tableName).execute(query).iterator();
+		} catch (StorageException e) {
+			throw new IOException(e);
+		} catch (URISyntaxException e) {
+			throw new IllegalArgumentException(e);
+		}
 	}
 
 	/**

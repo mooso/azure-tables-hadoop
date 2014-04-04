@@ -4,7 +4,7 @@ import java.util.*;
 
 import org.apache.hadoop.hive.serde2.objectinspector.*;
 
-import com.microsoft.windowsazure.services.table.client.*;
+import com.microsoft.windowsazure.storage.table.*;
 
 /**
  * An object inspector that knows how to interpet an Azure Tables

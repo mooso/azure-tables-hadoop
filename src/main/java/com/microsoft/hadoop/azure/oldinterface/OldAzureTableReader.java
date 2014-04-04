@@ -4,6 +4,7 @@ import static com.microsoft.hadoop.azure.AzureTableConfiguration.createTableClie
 import static com.microsoft.hadoop.azure.AzureTableConfiguration.getTableName;
 
 import java.io.*;
+import java.net.URISyntaxException;
 import java.util.*;
 
 import org.apache.hadoop.conf.Configuration;
@@ -11,8 +12,8 @@ import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapred.*;
 
 import com.microsoft.hadoop.azure.*;
-import com.microsoft.windowsazure.services.table.client.CloudTableClient;
-import com.microsoft.windowsazure.services.table.client.TableQuery;
+import com.microsoft.windowsazure.storage.StorageException;
+import com.microsoft.windowsazure.storage.table.*;
 
 /**
  * A record reader using the old mapred.* API that reads entities
@@ -30,8 +31,14 @@ public class OldAzureTableReader implements RecordReader<Text, WritableEntity> {
 		CloudTableClient tableClient = createTableClient(conf);
 		String tableName = getTableName(conf);
 		TableQuery<WritableEntity> query =
-				split.getWrappedSplit().getQuery(tableName);
-		queryResults = tableClient.execute(query).iterator();
+				split.getWrappedSplit().getQuery();
+		try {
+			queryResults = tableClient.getTableReference(tableName).execute(query).iterator();
+		} catch (StorageException e) {
+			throw new IOException(e);
+		} catch (URISyntaxException e) {
+			throw new IllegalArgumentException(e);
+		}
 	}
 
 	@Override

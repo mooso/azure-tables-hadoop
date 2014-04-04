@@ -40,10 +40,9 @@
 
   <dependencies>
     <dependency>
-      <groupId>com.microsoft.windowsazure</groupId>
-      <artifactId>microsoft-windowsazure-api</artifactId>
-      <version>0.4.1</version>
-      <scope>provided</scope>
+      <groupId>com.microsoft.windowsazure.storage</groupId>
+      <artifactId>microsoft-windowsazure-storage-sdk</artifactId>
+      <version>0.6.0</version>
     </dependency>
     <dependency>
       <groupId>org.apache.hadoop</groupId>

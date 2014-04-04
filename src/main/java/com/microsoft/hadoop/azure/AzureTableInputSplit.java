@@ -5,7 +5,7 @@ import java.io.IOException;
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapreduce.*;
 
-import com.microsoft.windowsazure.services.table.client.TableQuery;
+import com.microsoft.windowsazure.storage.table.*;
 
 public abstract class AzureTableInputSplit extends InputSplit
 		implements Writable {
@@ -22,5 +22,5 @@ public abstract class AzureTableInputSplit extends InputSplit
 		 return new String[] { "localhost" };
 	}
 
-	public abstract TableQuery<WritableEntity> getQuery(String tableName);
+	public abstract TableQuery<WritableEntity> getQuery();
 }

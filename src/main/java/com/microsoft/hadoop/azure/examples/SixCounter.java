@@ -12,8 +12,8 @@ import org.apache.hadoop.mapreduce.lib.output.*;
 import org.apache.hadoop.util.*;
 
 import com.microsoft.hadoop.azure.*;
-import com.microsoft.windowsazure.services.core.storage.StorageCredentialsAccountAndKey;
-import com.microsoft.windowsazure.services.table.client.*;
+import com.microsoft.windowsazure.storage.*;
+import com.microsoft.windowsazure.storage.table.*;
 
 /**
  * A simple silly example to illustrate how to read data from
@@ -50,13 +50,13 @@ public class SixCounter extends Configured
 						rand.nextInt(100))));
 				rowsInBatch++;
 				if (rowsInBatch >= MAX_ROWS_PER_BATCH) {
-					t.getServiceClient().execute(t.getName(), batch);
+					t.execute(batch);
 					batch = new TableBatchOperation();
 					rowsInBatch = 0;
 				}
 			}
 			if (rowsInBatch > 0) {
-				t.getServiceClient().execute(t.getName(), batch);
+				t.execute(batch);
 			}
 		}
 	}

@@ -9,7 +9,7 @@ import org.apache.hadoop.hive.serde2.objectinspector.*;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.*;
 import org.apache.hadoop.io.*;
 
-import com.microsoft.windowsazure.services.table.client.EntityProperty;
+import com.microsoft.windowsazure.storage.table.*;
 
 /**
  * An object inspector that knows how to extract values from
