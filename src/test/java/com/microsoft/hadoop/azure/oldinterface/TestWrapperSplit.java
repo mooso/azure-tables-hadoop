@@ -10,7 +10,6 @@ import org.apache.hadoop.mapred.JobConf;
 import org.junit.*;
 import static org.junit.Assert.*;
 
-@SuppressWarnings("deprecation")
 public class TestWrapperSplit {
 	@Test
 	public void testSerialization() throws Exception {

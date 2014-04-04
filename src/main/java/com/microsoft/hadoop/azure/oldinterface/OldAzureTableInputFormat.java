@@ -10,13 +10,12 @@ import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapred.*;
 
 import com.microsoft.hadoop.azure.*;
-import com.microsoft.windowsazure.services.table.client.*;
+import com.microsoft.windowsazure.storage.table.*;
 
 /**
  * An input format using the deprecated mapred.* API for reading Azure Tables.
  * Implemented here since HiveStorageHandler uses the old API.
  */
-@SuppressWarnings("deprecation")
 public class OldAzureTableInputFormat implements InputFormat<Text, WritableEntity> {
 
 	@Override

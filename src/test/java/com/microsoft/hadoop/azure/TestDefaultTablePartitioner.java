@@ -8,7 +8,7 @@ import java.util.*;
 
 import org.junit.*;
 
-import com.microsoft.windowsazure.services.table.client.*;
+import com.microsoft.windowsazure.storage.table.*;
 
 public class TestDefaultTablePartitioner {
 	CloudTable t;

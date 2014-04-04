@@ -1,15 +1,16 @@
 package com.microsoft.hadoop.azure.hive;
 
-import static org.apache.hadoop.hive.serde.Constants.*;
+import static org.apache.hadoop.hive.serde.serdeConstants.*;
 
 import java.util.*;
 
 import org.apache.hadoop.hive.serde2.SerDeException;
 import org.apache.hadoop.hive.serde2.objectinspector.*;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.*;
+import org.apache.hadoop.hive.serde2.typeinfo.BaseTypeParams;
 import org.apache.hadoop.io.*;
 
-import com.microsoft.windowsazure.services.table.client.EntityProperty;
+import com.microsoft.windowsazure.storage.table.*;
 
 /**
  * An object inspector that knows how to extract values from
@@ -57,6 +58,15 @@ public abstract class EntityPropertyInspector implements PrimitiveObjectInspecto
 	@Override
 	public Object copyObject(Object o) {
 		return o;
+	}
+
+	@Override
+	public BaseTypeParams getTypeParams() {
+		return null;
+	}
+
+	@Override
+	public void setTypeParams(BaseTypeParams arg0) {
 	}
 
 	public static class IntEntityPropertyInspector extends EntityPropertyInspector

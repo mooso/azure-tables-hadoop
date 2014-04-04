@@ -3,8 +3,8 @@ package com.microsoft.hadoop.azure;
 import java.net.*;
 import java.util.*;
 
-import com.microsoft.windowsazure.services.core.storage.*;
-import com.microsoft.windowsazure.services.table.client.*;
+import com.microsoft.windowsazure.storage.*;
+import com.microsoft.windowsazure.storage.table.*;
 
 public class TestUtils {
 	public static CloudTable createTable(CloudTableClient tableClient)
@@ -56,7 +56,6 @@ public class TestUtils {
 
 	public static void insertRow(CloudTable t, String partitionKey, String rowKey)
 			throws Exception{
-		t.getServiceClient().execute(t.getName(),
-				TableOperation.insert(newEntity(partitionKey, rowKey)));
+		t.execute(TableOperation.insert(newEntity(partitionKey, rowKey)));
 	}
 }

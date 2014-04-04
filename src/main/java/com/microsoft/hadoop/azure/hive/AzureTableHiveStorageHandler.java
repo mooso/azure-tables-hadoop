@@ -94,7 +94,7 @@ public class AzureTableHiveStorageHandler
 	/**
 	 * Gets the input format class.
 	 */
-	@SuppressWarnings({ "rawtypes", "deprecation" })
+	@SuppressWarnings({ "rawtypes" })
 	@Override
 	public Class<? extends InputFormat> getInputFormatClass() {
 		return OldAzureTableInputFormat.class;
@@ -111,7 +111,7 @@ public class AzureTableHiveStorageHandler
 	/**
 	 * Gets the output format class, used to write to the Azure Table.
 	 */
-	@SuppressWarnings({ "rawtypes", "deprecation" })
+	@SuppressWarnings({ "rawtypes" })
 	@Override
 	public Class<? extends OutputFormat> getOutputFormatClass() {
 		// Not yet implemented, but if we return null then the create
@@ -125,14 +125,14 @@ public class AzureTableHiveStorageHandler
 	 * of the input format.
 	 */
 	@Override
-	public Class<? extends SerDe> getSerDeClass() {
+	public Class<? extends AbstractSerDe> getSerDeClass() {
 		return AzureEntitySerDe.class;
 	}
 
 	/**
 	 * Dummy implementation of output format.
 	 */
-	@SuppressWarnings({ "rawtypes", "deprecation" })
+	@SuppressWarnings({ "rawtypes" })
 	public static class NotImplementedOutputFormat implements HiveOutputFormat {
 
 		@Override
@@ -155,5 +155,9 @@ public class AzureTableHiveStorageHandler
 			throw new NotImplementedException();
 		}
 		
+	}
+
+	@Override
+	public void configureJobConf(TableDesc tableDesc, JobConf jobConf) {
 	}
 }

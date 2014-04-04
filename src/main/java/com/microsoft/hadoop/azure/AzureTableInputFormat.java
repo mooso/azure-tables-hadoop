@@ -7,7 +7,7 @@ import org.apache.hadoop.conf.*;
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapreduce.*;
 
-import com.microsoft.windowsazure.services.table.client.*;
+import com.microsoft.windowsazure.storage.table.*;
 
 import static com.microsoft.hadoop.azure.AzureTableConfiguration.*;
 

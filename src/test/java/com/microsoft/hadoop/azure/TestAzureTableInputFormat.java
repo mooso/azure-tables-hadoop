@@ -8,9 +8,10 @@ import static org.junit.Assume.*;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapreduce.*;
+import org.apache.hadoop.mapreduce.task.*;
 import org.junit.*;
 
-import com.microsoft.windowsazure.services.table.client.*;
+import com.microsoft.windowsazure.storage.table.*;
 
 import static com.microsoft.hadoop.azure.TestUtils.*;
 
@@ -34,7 +35,7 @@ public class TestAzureTableInputFormat {
 		AzureTableConfiguration.configureInputTable(conf,
 				t.getName(), getAccountUri(), getAccountKey());
 		AzureTableInputFormat inputFormat = new AzureTableInputFormat();
-		JobContext jobContext = new JobContext(conf, new JobID("jt", 5));
+		JobContext jobContext = Job.getInstance(conf);
 		List<InputSplit> obtainedSplits = inputFormat.getSplits(jobContext);
 		assertEquals(0, obtainedSplits.size());
 		insertRow(t, "p1", "r1");
@@ -63,11 +64,11 @@ public class TestAzureTableInputFormat {
 		AzureTableConfiguration.configureInputTable(conf,
 				t.getName(), getAccountUri(), getAccountKey());
 		AzureTableInputFormat inputFormat = new AzureTableInputFormat();
-		JobContext jobContext = new JobContext(conf, new JobID("jt", 5));
+		JobContext jobContext = Job.getInstance(conf);
 		List<InputSplit> obtainedSplits = inputFormat.getSplits(jobContext);
 		assertEquals(1, obtainedSplits.size());
 		TaskAttemptContext taskContext =
-				new TaskAttemptContext(conf, new TaskAttemptID());
+				new TaskAttemptContextImpl(conf, new TaskAttemptID());
 		InputSplit split = obtainedSplits.get(0);
 		RecordReader<Text, WritableEntity> reader =
 				inputFormat.createRecordReader(split, taskContext);

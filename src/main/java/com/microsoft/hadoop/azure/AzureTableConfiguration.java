@@ -5,8 +5,8 @@ import java.net.*;
 
 import org.apache.hadoop.conf.Configuration;
 
-import com.microsoft.windowsazure.services.core.storage.*;
-import com.microsoft.windowsazure.services.table.client.*;
+import com.microsoft.windowsazure.storage.*;
+import com.microsoft.windowsazure.storage.table.*;
 
 /**
  * The configuration used for Azure Table jobs.

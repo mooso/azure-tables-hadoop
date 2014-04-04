@@ -4,7 +4,7 @@ import java.io.*;
 
 import org.apache.hadoop.io.*;
 
-import com.microsoft.windowsazure.services.table.client.TableQuery;
+import com.microsoft.windowsazure.storage.table.*;
 
 public class PartitionInputSplit extends AzureTableInputSplit {
 	private String partitionKey;
@@ -30,9 +30,9 @@ public class PartitionInputSplit extends AzureTableInputSplit {
 	}
 
 	@Override
-	public TableQuery<WritableEntity> getQuery(String tableName) {
+	public TableQuery<WritableEntity> getQuery() {
 		return TableQuery
-				.from(tableName, WritableEntity.class)
+				.from(WritableEntity.class)
 				.where("PartitionKey eq '" + partitionKey + "'");
 	}
 }

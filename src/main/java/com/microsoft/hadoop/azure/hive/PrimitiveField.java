@@ -2,7 +2,7 @@ package com.microsoft.hadoop.azure.hive;
 
 import org.apache.hadoop.hive.serde2.objectinspector.*;
 
-import com.microsoft.windowsazure.services.table.client.*;
+import com.microsoft.windowsazure.storage.table.*;
 
 /**
  * A field in an Azure Tables entity.

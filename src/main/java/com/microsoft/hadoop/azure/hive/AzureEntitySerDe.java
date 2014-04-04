@@ -3,7 +3,7 @@ package com.microsoft.hadoop.azure.hive;
 import java.util.*;
 
 import org.apache.hadoop.conf.Configuration;
-import static org.apache.hadoop.hive.serde.Constants.*;
+import static org.apache.hadoop.hive.serde.serdeConstants.*;
 import org.apache.hadoop.hive.serde2.*;
 import org.apache.hadoop.hive.serde2.objectinspector.*;
 
@@ -15,7 +15,7 @@ import com.microsoft.hadoop.azure.*;
 /**
  * A Hive SerDe that knows how to interpret Azure Tables entities.
  */
-public class AzureEntitySerDe implements SerDe {
+public class AzureEntitySerDe extends AbstractSerDe {
 	// The object inspector for the entity.
 	private EntityObjectInspector objectInspector;
 

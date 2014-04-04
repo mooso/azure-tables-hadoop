@@ -5,7 +5,7 @@ import java.util.*;
 
 import org.apache.hadoop.io.Writable;
 
-import com.microsoft.windowsazure.services.table.client.*;
+import com.microsoft.windowsazure.storage.table.*;
 
 /**
  * A representation of an Azure Table that implements

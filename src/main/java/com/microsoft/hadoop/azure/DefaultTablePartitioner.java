@@ -2,7 +2,8 @@ package com.microsoft.hadoop.azure;
 
 import java.util.*;
 
-import com.microsoft.windowsazure.services.table.client.*;
+import com.microsoft.windowsazure.storage.StorageException;
+import com.microsoft.windowsazure.storage.table.*;
 
 /**
  * A default partitioner for Azure Tables that splits the table by
@@ -39,9 +40,9 @@ public class DefaultTablePartitioner implements AzureTablePartitioner {
 	 * @param table The table to query.
 	 * @return The query.
 	 */
-	private static TableQuery<DynamicTableEntity> getFirstRowNoFields(CloudTable table) {
+	private static TableQuery<DynamicTableEntity> getFirstRowNoFields() {
 		return TableQuery
-			.from(table.getName(), DynamicTableEntity.class)
+			.from(DynamicTableEntity.class)
 			.select(new String[0])
 			.take(1);
 	}
@@ -57,14 +58,18 @@ public class DefaultTablePartitioner implements AzureTablePartitioner {
 		// key for the first row, then the next greater key, and so on until
 		// I get all the keys.
 		TableQuery<DynamicTableEntity> getNextKeyQuery =
-				getFirstRowNoFields(table);
-		CloudTableClient tableClient = table.getServiceClient();
+				getFirstRowNoFields();
 		TableEntity currentEntity;
 		ArrayList<String> ret = new ArrayList<String>();
-		while ((currentEntity = GetSingleton(tableClient.execute(getNextKeyQuery))) != null) {
-			ret.add(currentEntity.getPartitionKey());
-			getNextKeyQuery = getFirstRowNoFields(table)
-					.where("PartitionKey gt '" + currentEntity.getPartitionKey() + "'");
+		try {
+			while ((currentEntity = GetSingleton(table.execute(getNextKeyQuery))) != null) {
+				ret.add(currentEntity.getPartitionKey());
+				getNextKeyQuery = getFirstRowNoFields()
+						.where("PartitionKey gt '" + currentEntity.getPartitionKey() + "'");
+			}
+		} catch (StorageException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		return ret;
 	}
