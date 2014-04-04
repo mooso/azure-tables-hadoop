@@ -5,9 +5,8 @@ import static org.apache.hadoop.hive.serde.serdeConstants.*;
 import java.util.*;
 
 import org.apache.hadoop.hive.serde2.SerDeException;
-import org.apache.hadoop.hive.serde2.objectinspector.*;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.*;
-import org.apache.hadoop.hive.serde2.typeinfo.BaseTypeParams;
+import org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectInspectorUtils.*;
 import org.apache.hadoop.io.*;
 
 import com.microsoft.windowsazure.storage.table.*;
@@ -16,7 +15,7 @@ import com.microsoft.windowsazure.storage.table.*;
  * An object inspector that knows how to extract values from
  * {link com.microsoft.windowsazure.services.table.client.EntityProperty}.
  */
-public abstract class EntityPropertyInspector implements PrimitiveObjectInspector {
+public abstract class EntityPropertyInspector extends AbstractPrimitiveJavaObjectInspector {
 	@SuppressWarnings("serial")
 	/**
 	 * A map that gets the appropriate inspector for a given Hive type name.
@@ -45,55 +44,30 @@ public abstract class EntityPropertyInspector implements PrimitiveObjectInspecto
 		}
 	}
 
-	@Override
-	public Category getCategory() {
-		return Category.PRIMITIVE;
-	}
+	protected EntityPropertyInspector(PrimitiveTypeEntry typeEntry) {
+    super(typeEntry);
+  }
 
 	@Override
-	public boolean preferWritable() {
-		return false;
+	public Object getPrimitiveJavaObject(Object property) {
+		if (EntityProperty.class.isInstance(property)) {
+			return getPrimitiveJavaObject((EntityProperty)property);
+		} else {
+			return super.getPrimitiveJavaObject(property);
+		}
 	}
 
-	@Override
-	public Object copyObject(Object o) {
-		return o;
-	}
-
-	@Override
-	public BaseTypeParams getTypeParams() {
-		return null;
-	}
-
-	@Override
-	public void setTypeParams(BaseTypeParams arg0) {
-	}
+	protected abstract Object getPrimitiveJavaObject(EntityProperty property);
 
 	public static class IntEntityPropertyInspector extends EntityPropertyInspector
 			implements IntObjectInspector {
-		@Override
-		public Class<?> getJavaPrimitiveClass() {
-			return Integer.TYPE;
+		public IntEntityPropertyInspector() {
+			super(PrimitiveObjectInspectorUtils.intTypeEntry);
 		}
 
 		@Override
-		public PrimitiveCategory getPrimitiveCategory() {
-			return PrimitiveCategory.INT;
-		}
-
-		@Override
-		public Class<?> getPrimitiveWritableClass() {
-			return IntWritable.class;
-		}
-
-		@Override
-		public String getTypeName() {
-			return INT_TYPE_NAME;
-		}
-
-		@Override
-		public Object getPrimitiveJavaObject(Object property) {
-			return ((EntityProperty)property).getValueAsInteger();
+		public Object getPrimitiveJavaObject(EntityProperty property) {
+			return property.getValueAsInteger();
 		}
 
 		@Override
@@ -109,29 +83,22 @@ public abstract class EntityPropertyInspector implements PrimitiveObjectInspecto
 
 	public static class StringEntityPropertyInspector extends EntityPropertyInspector
 			implements StringObjectInspector {
-		@Override
-		public Class<?> getJavaPrimitiveClass() {
-			return String.class;
+		public StringEntityPropertyInspector() {
+			super(PrimitiveObjectInspectorUtils.stringTypeEntry);
 		}
 
 		@Override
-		public PrimitiveCategory getPrimitiveCategory() {
-			return PrimitiveCategory.STRING;
-		}
-
-		@Override
-		public Class<?> getPrimitiveWritableClass() {
-			return Text.class;
-		}
-
-		@Override
-		public String getTypeName() {
-			return STRING_TYPE_NAME;
+		public String getPrimitiveJavaObject(EntityProperty property) {
+			return property.getValueAsString();
 		}
 
 		@Override
 		public String getPrimitiveJavaObject(Object property) {
-			return ((EntityProperty)property).getValueAsString();
+			if (EntityProperty.class.isInstance(property)) {
+				return getPrimitiveJavaObject((EntityProperty)property);
+			} else {
+				return (String)super.getPrimitiveJavaObject(property);
+			}
 		}
 
 		@Override
@@ -142,29 +109,13 @@ public abstract class EntityPropertyInspector implements PrimitiveObjectInspecto
 
 	public static class BooleanEntityPropertyInspector extends EntityPropertyInspector
 			implements BooleanObjectInspector {
-		@Override
-		public Class<?> getJavaPrimitiveClass() {
-			return Boolean.TYPE;
+		public BooleanEntityPropertyInspector() {
+			super(PrimitiveObjectInspectorUtils.booleanTypeEntry);
 		}
 
 		@Override
-		public PrimitiveCategory getPrimitiveCategory() {
-			return PrimitiveCategory.BOOLEAN;
-		}
-
-		@Override
-		public Class<?> getPrimitiveWritableClass() {
-			return BooleanWritable.class;
-		}
-
-		@Override
-		public String getTypeName() {
-			return BOOLEAN_TYPE_NAME;
-		}
-
-		@Override
-		public Object getPrimitiveJavaObject(Object property) {
-			return ((EntityProperty)property).getValueAsBoolean();
+		public Object getPrimitiveJavaObject(EntityProperty property) {
+			return property.getValueAsBoolean();
 		}
 
 		@Override
@@ -180,29 +131,13 @@ public abstract class EntityPropertyInspector implements PrimitiveObjectInspecto
 
 	public static class LongEntityPropertyInspector extends EntityPropertyInspector
 			implements LongObjectInspector {
-		@Override
-		public Class<?> getJavaPrimitiveClass() {
-			return Long.TYPE;
+		public LongEntityPropertyInspector() {
+			super(PrimitiveObjectInspectorUtils.longTypeEntry);
 		}
 
 		@Override
-		public PrimitiveCategory getPrimitiveCategory() {
-			return PrimitiveCategory.LONG;
-		}
-
-		@Override
-		public Class<?> getPrimitiveWritableClass() {
-			return LongWritable.class;
-		}
-
-		@Override
-		public String getTypeName() {
-			return BIGINT_TYPE_NAME;
-		}
-
-		@Override
-		public Object getPrimitiveJavaObject(Object property) {
-			return ((EntityProperty)property).getValueAsLong();
+		public Object getPrimitiveJavaObject(EntityProperty property) {
+			return property.getValueAsLong();
 		}
 
 		@Override
@@ -218,29 +153,13 @@ public abstract class EntityPropertyInspector implements PrimitiveObjectInspecto
 
 	public static class DoubleEntityPropertyInspector extends EntityPropertyInspector
 			implements DoubleObjectInspector {
-		@Override
-		public Class<?> getJavaPrimitiveClass() {
-			return Double.TYPE;
+		public DoubleEntityPropertyInspector() {
+			super(PrimitiveObjectInspectorUtils.doubleTypeEntry);
 		}
 
 		@Override
-		public PrimitiveCategory getPrimitiveCategory() {
-			return PrimitiveCategory.DOUBLE;
-		}
-
-		@Override
-		public Class<?> getPrimitiveWritableClass() {
-			return DoubleWritable.class;
-		}
-
-		@Override
-		public String getTypeName() {
-			return DOUBLE_TYPE_NAME;
-		}
-
-		@Override
-		public Object getPrimitiveJavaObject(Object property) {
-			return ((EntityProperty)property).getValueAsDouble();
+		public Object getPrimitiveJavaObject(EntityProperty property) {
+			return property.getValueAsDouble();
 		}
 
 		@Override

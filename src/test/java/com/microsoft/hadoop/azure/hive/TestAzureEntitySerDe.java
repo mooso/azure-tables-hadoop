@@ -3,7 +3,7 @@ package com.microsoft.hadoop.azure.hive;
 import java.util.*;
 
 import org.apache.hadoop.conf.Configuration;
-import static org.apache.hadoop.hive.serde.Constants.*;
+import static org.apache.hadoop.hive.serde.serdeConstants.*;
 import org.apache.hadoop.hive.serde2.objectinspector.StructObjectInspector;
 import org.junit.*;
 
