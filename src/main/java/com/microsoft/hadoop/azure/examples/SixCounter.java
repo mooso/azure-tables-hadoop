@@ -12,7 +12,7 @@ import org.apache.hadoop.mapreduce.lib.output.*;
 import org.apache.hadoop.util.*;
 
 import com.microsoft.hadoop.azure.*;
-import com.microsoft.windowsazure.storage.StorageCredentialsAccountAndKey;
+import com.microsoft.windowsazure.storage.*;
 import com.microsoft.windowsazure.storage.table.*;
 
 /**

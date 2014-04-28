@@ -7,6 +7,7 @@ import org.apache.hadoop.conf.*;
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapreduce.*;
 
+import com.microsoft.windowsazure.storage.StorageException;
 import com.microsoft.windowsazure.storage.table.*;
 
 import static com.microsoft.hadoop.azure.AzureTableConfiguration.*;
@@ -39,8 +40,12 @@ public class AzureTableInputFormat
 		AzureTablePartitioner partitioner = getPartitioner(job);
 		CloudTable table = getTableReference(job);
 		ArrayList<InputSplit> ret = new ArrayList<InputSplit>();
-		for (AzureTableInputSplit split : partitioner.getSplits(table)) {
-			ret.add(split);
+		try {
+			for (AzureTableInputSplit split : partitioner.getSplits(table)) {
+				ret.add(split);
+			}
+		} catch (StorageException e) {
+			throw new IOException(e);
 		}
 		return ret;
 	}

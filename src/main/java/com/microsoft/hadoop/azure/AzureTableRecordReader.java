@@ -41,11 +41,9 @@ public class AzureTableRecordReader
 		try {
 			queryResults = tableClient.getTableReference(tableName).execute(query).iterator();
 		} catch (StorageException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new IOException(e);
 		} catch (URISyntaxException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new IllegalArgumentException(e);
 		}
 	}
 

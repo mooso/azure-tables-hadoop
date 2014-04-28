@@ -12,7 +12,7 @@ import com.microsoft.windowsazure.storage.table.*;
 public class DefaultTablePartitioner implements AzureTablePartitioner {
 
 	@Override
-	public List<AzureTableInputSplit> getSplits(CloudTable table) {
+	public List<AzureTableInputSplit> getSplits(CloudTable table) throws StorageException {
 		ArrayList<AzureTableInputSplit> ret = new ArrayList<AzureTableInputSplit>();
 		Iterable<String> partitionKeys;
 		partitionKeys = getAllPartitionKeys(table);
@@ -51,8 +51,9 @@ public class DefaultTablePartitioner implements AzureTablePartitioner {
 	 * Gets all the distinct partition keys in the given table.
 	 * @param table The table to query.
 	 * @return The list of distinct partition keys.
+	 * @throws StorageException 
 	 */
-	static List<String> getAllPartitionKeys(CloudTable table) {
+	static List<String> getAllPartitionKeys(CloudTable table) throws StorageException {
 		// Since Azure Tables (at the time of writing) doesn't expose an
 		// elegant generic way to query this, I do it by querying the partition
 		// key for the first row, then the next greater key, and so on until
@@ -61,15 +62,10 @@ public class DefaultTablePartitioner implements AzureTablePartitioner {
 				getFirstRowNoFields();
 		TableEntity currentEntity;
 		ArrayList<String> ret = new ArrayList<String>();
-		try {
-			while ((currentEntity = GetSingleton(table.execute(getNextKeyQuery))) != null) {
-				ret.add(currentEntity.getPartitionKey());
-				getNextKeyQuery = getFirstRowNoFields()
-						.where("PartitionKey gt '" + currentEntity.getPartitionKey() + "'");
-			}
-		} catch (StorageException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		while ((currentEntity = GetSingleton(table.execute(getNextKeyQuery))) != null) {
+			ret.add(currentEntity.getPartitionKey());
+			getNextKeyQuery = getFirstRowNoFields()
+					.where("PartitionKey gt '" + currentEntity.getPartitionKey() + "'");
 		}
 		return ret;
 	}
