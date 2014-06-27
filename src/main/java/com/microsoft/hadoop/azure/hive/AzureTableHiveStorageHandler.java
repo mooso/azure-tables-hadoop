@@ -9,6 +9,7 @@ import org.apache.commons.lang.NotImplementedException;
 import org.apache.hadoop.conf.*;
 import org.apache.hadoop.fs.*;
 import org.apache.hadoop.hive.metastore.*;
+import org.apache.hadoop.hive.ql.io.FSRecordWriter;
 import org.apache.hadoop.hive.ql.io.HiveOutputFormat;
 import org.apache.hadoop.hive.ql.metadata.*;
 import org.apache.hadoop.hive.ql.plan.*;
@@ -148,7 +149,7 @@ public class AzureTableHiveStorageHandler
 		}
 
 		@Override
-		public org.apache.hadoop.hive.ql.exec.FileSinkOperator.RecordWriter getHiveRecordWriter(
+		public FSRecordWriter getHiveRecordWriter(
 				JobConf job, Path finalOutPath, Class valueClass,
 				boolean isCompressed, Properties tableProperties,
 				Progressable progress) throws IOException {

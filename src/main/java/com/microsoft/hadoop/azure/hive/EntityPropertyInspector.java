@@ -6,7 +6,7 @@ import java.util.*;
 
 import org.apache.hadoop.hive.serde2.SerDeException;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.*;
-import org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectInspectorUtils.*;
+import org.apache.hadoop.hive.serde2.typeinfo.*;
 import org.apache.hadoop.io.*;
 
 import com.microsoft.windowsazure.storage.table.*;
@@ -44,8 +44,8 @@ public abstract class EntityPropertyInspector extends AbstractPrimitiveJavaObjec
 		}
 	}
 
-	protected EntityPropertyInspector(PrimitiveTypeEntry typeEntry) {
-    super(typeEntry);
+	protected EntityPropertyInspector(PrimitiveTypeInfo typeInfo) {
+    super(typeInfo);
   }
 
 	@Override
@@ -62,7 +62,7 @@ public abstract class EntityPropertyInspector extends AbstractPrimitiveJavaObjec
 	public static class IntEntityPropertyInspector extends EntityPropertyInspector
 			implements IntObjectInspector {
 		public IntEntityPropertyInspector() {
-			super(PrimitiveObjectInspectorUtils.intTypeEntry);
+			super(TypeInfoFactory.intTypeInfo);
 		}
 
 		@Override
@@ -84,7 +84,7 @@ public abstract class EntityPropertyInspector extends AbstractPrimitiveJavaObjec
 	public static class StringEntityPropertyInspector extends EntityPropertyInspector
 			implements StringObjectInspector {
 		public StringEntityPropertyInspector() {
-			super(PrimitiveObjectInspectorUtils.stringTypeEntry);
+			super(TypeInfoFactory.stringTypeInfo);
 		}
 
 		@Override
@@ -110,7 +110,7 @@ public abstract class EntityPropertyInspector extends AbstractPrimitiveJavaObjec
 	public static class BooleanEntityPropertyInspector extends EntityPropertyInspector
 			implements BooleanObjectInspector {
 		public BooleanEntityPropertyInspector() {
-			super(PrimitiveObjectInspectorUtils.booleanTypeEntry);
+			super(TypeInfoFactory.booleanTypeInfo);
 		}
 
 		@Override
@@ -132,7 +132,7 @@ public abstract class EntityPropertyInspector extends AbstractPrimitiveJavaObjec
 	public static class LongEntityPropertyInspector extends EntityPropertyInspector
 			implements LongObjectInspector {
 		public LongEntityPropertyInspector() {
-			super(PrimitiveObjectInspectorUtils.longTypeEntry);
+			super(TypeInfoFactory.longTypeInfo);
 		}
 
 		@Override
@@ -154,7 +154,7 @@ public abstract class EntityPropertyInspector extends AbstractPrimitiveJavaObjec
 	public static class DoubleEntityPropertyInspector extends EntityPropertyInspector
 			implements DoubleObjectInspector {
 		public DoubleEntityPropertyInspector() {
-			super(PrimitiveObjectInspectorUtils.doubleTypeEntry);
+			super(TypeInfoFactory.doubleTypeInfo);
 		}
 
 		@Override
