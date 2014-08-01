@@ -26,12 +26,20 @@ public class TestAzureEntitySerDe {
 			put("doubleField", new EntityProperty(32.5));
 			put("booleanField", new EntityProperty(false));
 		}});
+		entity.setRowKey("rowKey");
+		entity.setPartitionKey("partKey");
 		AzureEntitySerDe serDe = new AzureEntitySerDe();
 		Properties tbl = new Properties();
-		tbl.put(LIST_COLUMNS, "intField,stringField,bigIntField,doubleField,booleanField");
-		tbl.put(LIST_COLUMN_TYPES, "int,string,bigint,double,boolean");
+		tbl.put(LIST_COLUMNS,
+				"PartitionKey,RowKey,intField,stringField,bigIntField,doubleField,booleanField");
+		tbl.put(LIST_COLUMN_TYPES,
+				"string,string,int,string,bigint,double,boolean");
 		serDe.initialize(new Configuration(), tbl);
 		StructObjectInspector inspector = (StructObjectInspector)serDe.getObjectInspector();
+		assertEquals("rowKey", inspector.getStructFieldData(entity,
+				inspector.getStructFieldRef("RowKey")));
+		assertEquals("partKey", inspector.getStructFieldData(entity,
+				inspector.getStructFieldRef("PartitionKey")));
 		assertEquals(3, inspector.getStructFieldData(entity,
 				inspector.getStructFieldRef("intField")));
 		assertEquals("hi", inspector.getStructFieldData(entity,
