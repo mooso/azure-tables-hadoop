@@ -2,9 +2,11 @@ package com.microsoft.hadoop.azure.hive;
 
 import static org.apache.hadoop.hive.serde.serdeConstants.*;
 
+import java.sql.Timestamp;
 import java.util.*;
 
 import org.apache.hadoop.hive.serde2.SerDeException;
+import org.apache.hadoop.hive.serde2.io.TimestampWritable;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.*;
 import org.apache.hadoop.hive.serde2.typeinfo.*;
 import org.apache.hadoop.io.*;
@@ -27,6 +29,7 @@ public abstract class EntityPropertyInspector extends AbstractPrimitiveJavaObjec
         put(BIGINT_TYPE_NAME, new LongEntityPropertyInspector());
         put(DOUBLE_TYPE_NAME, new DoubleEntityPropertyInspector());
         put(BOOLEAN_TYPE_NAME, new BooleanEntityPropertyInspector());
+        put(TIMESTAMP_TYPE_NAME, new TimestampEntityPropertyInspector());
 
         // Consider adding support for {tinyint, smallint, float, decimal}
     }});
@@ -170,6 +173,33 @@ public abstract class EntityPropertyInspector extends AbstractPrimitiveJavaObjec
 		@Override
 		public double get(Object value) {
 			return (Double)value;
+		}
+	}
+
+
+	public static class TimestampEntityPropertyInspector extends EntityPropertyInspector
+			implements TimestampObjectInspector {
+		public TimestampEntityPropertyInspector() {
+			super(TypeInfoFactory.timestampTypeInfo);
+		}
+
+		@Override
+		public Timestamp getPrimitiveJavaObject(EntityProperty property) {
+			return new Timestamp(property.getValueAsDate().getTime());
+		}
+
+		@Override
+		public Timestamp getPrimitiveJavaObject(Object property) {
+			if (EntityProperty.class.isInstance(property)) {
+				return getPrimitiveJavaObject((EntityProperty)property);
+			} else {
+				return (Timestamp)super.getPrimitiveJavaObject(property);
+			}
+		}
+
+		@Override
+		public TimestampWritable getPrimitiveWritableObject(Object value) {
+			return new TimestampWritable((Timestamp)value);
 		}
 	}
 }
