@@ -81,13 +81,21 @@ public class TestUtils {
 	public static String getCreateAzureTableSql(CloudTable table,
 			String hiveTableName, String columnsDefinition)
 					throws URISyntaxException {
+		return getCreateAzureTableSql(table, hiveTableName, columnsDefinition,
+				DefaultTablePartitioner.class.getName());
+	}
+
+	public static String getCreateAzureTableSql(CloudTable table,
+			String hiveTableName, String columnsDefinition, String partitioner)
+					throws URISyntaxException {
 		return "CREATE EXTERNAL TABLE " + hiveTableName +
 				" (" + columnsDefinition + ") " +
 				" STORED BY 'com.microsoft.hadoop.azure.hive.AzureTableHiveStorageHandler'" +
 				" TBLPROPERTIES(" +
 				"\"azure.table.name\"=\"" + table.getName() + "\"," +
 				"\"azure.table.account.uri\"=\"" + getAccountUri() + "\"," +
-				"\"azure.table.storage.key\"=\"" + getAccountKey() + "\")";
+				"\"azure.table.storage.key\"=\"" + getAccountKey() + "\"," +
+				"\"azure.table.partitioner.class\"=\"" + partitioner + "\")";
 	}
 
 	public static void insertRow(CloudTable t, String partitionKey, String rowKey)

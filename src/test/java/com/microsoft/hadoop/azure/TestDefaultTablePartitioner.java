@@ -36,5 +36,4 @@ public class TestDefaultTablePartitioner {
 		assertEquals("p2", partitionKeys.get(1));
 		assertEquals("p3", partitionKeys.get(2));
 	}
-
 }

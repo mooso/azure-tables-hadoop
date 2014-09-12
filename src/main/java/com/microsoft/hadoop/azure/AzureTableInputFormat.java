@@ -38,6 +38,7 @@ public class AzureTableInputFormat
 			InterruptedException {
 		Configuration job = context.getConfiguration();
 		AzureTablePartitioner partitioner = getPartitioner(job);
+		partitioner.configure(job);
 		CloudTable table = getTableReference(job);
 		ArrayList<InputSplit> ret = new ArrayList<InputSplit>();
 		try {
