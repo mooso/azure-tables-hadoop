@@ -2,6 +2,7 @@ package com.microsoft.hadoop.azure.hive;
 
 import org.apache.hadoop.hive.serde2.objectinspector.*;
 
+import com.google.common.base.Joiner;
 import com.microsoft.windowsazure.storage.table.*;
 
 /**
@@ -48,7 +49,10 @@ class PrimitiveField implements StructField {
 					}
 				}
 				if (value == null) {
-					throw new IllegalArgumentException("No property found with name " + name);
+					throw new IllegalArgumentException(
+							"No property found with name " + name +
+							". Properties found: " +
+							Joiner.on(',').join(entity.getProperties().keySet()));
 				}
 			}
 		}

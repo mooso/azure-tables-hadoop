@@ -51,4 +51,30 @@ public class TestAzureEntitySerDe {
 		assertEquals(false, inspector.getStructFieldData(entity,
 				inspector.getStructFieldRef("booleanField")));
 	}
+
+	@Test
+	@SuppressWarnings("serial")
+	public void testPropertyNotFound() throws Exception {
+		WritableEntity entity = new WritableEntity();
+		entity.setProperties(new HashMap<String, EntityProperty>() {{
+			put("a", new EntityProperty(7));
+			put("b", new EntityProperty("hello"));
+		}});
+		AzureEntitySerDe serDe = new AzureEntitySerDe();
+		Properties tbl = new Properties();
+		tbl.put(LIST_COLUMNS, "a,b,c");
+		tbl.put(LIST_COLUMN_TYPES, "int,string,int");
+		serDe.initialize(new Configuration(), tbl);
+		StructObjectInspector inspector = (StructObjectInspector)serDe.getObjectInspector();
+		assertEquals(7, inspector.getStructFieldData(entity,
+				inspector.getStructFieldRef("a")));
+		try {
+			inspector.getStructFieldData(entity,
+					inspector.getStructFieldRef("c"));
+			fail("Should've thrown here.");
+		} catch (IllegalArgumentException ex) {
+			assertEquals("No property found with name c. Properties found: a,b",
+					ex.getMessage());
+		}
+	}
 }
