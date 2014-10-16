@@ -11,6 +11,7 @@ import org.apache.hadoop.hive.serde2.typeinfo.*;
 import org.apache.hadoop.io.*;
 
 import com.microsoft.hadoop.azure.*;
+import com.microsoft.hadoop.azure.AzureTableConfiguration.Keys;
 
 /**
  * A Hive SerDe that knows how to interpret Azure Tables entities.
@@ -39,9 +40,11 @@ public class AzureEntitySerDe extends AbstractSerDe {
     // Translate the columns into fields. We assume an identity mapping
     // where column names in Hive match those in the Azure Table.
     ArrayList<PrimitiveField> fields = new ArrayList<PrimitiveField>(columnNames.size());
+    boolean requireFieldExists = conf.getBoolean(Keys.REQUIRE_FIELD_EXISTS.getKey(), false);
     for (int c = 0; c < columnNames.size(); c++) {
     	fields.add(new PrimitiveField(columnNames.get(c),
-    			EntityPropertyInspector.getInspectorForType(columnTypes.get(c).getTypeName())));
+    			EntityPropertyInspector.getInspectorForType(columnTypes.get(c).getTypeName()),
+    			requireFieldExists));
     }
     objectInspector = new EntityObjectInspector(fields);
 	}

@@ -20,7 +20,9 @@ public class AzureTableConfiguration {
 		// The storage key.
 		STORAGE_KEY("azure.table.storage.key"),
 		// The class to use to partition the rows in an Azure Table
-		PARTITIONER_CLASS("azure.table.partitioner.class");
+		PARTITIONER_CLASS("azure.table.partitioner.class"),
+		// Change the behavior to error out if a field doesn't exist instead of returning null.
+		REQUIRE_FIELD_EXISTS("azure.table.require.field.exists");
 	
 		private final String key;
 	

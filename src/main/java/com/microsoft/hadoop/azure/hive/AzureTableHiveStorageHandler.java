@@ -61,6 +61,7 @@ public class AzureTableHiveStorageHandler
     transferProperty(tableProperties, jobProperties, Keys.ACCOUNT_URI, true);
     transferProperty(tableProperties, jobProperties, Keys.STORAGE_KEY, true);
     transferProperty(tableProperties, jobProperties, Keys.PARTITIONER_CLASS, false);
+    transferProperty(tableProperties, jobProperties, Keys.REQUIRE_FIELD_EXISTS, false);
 	}
 
 	/**

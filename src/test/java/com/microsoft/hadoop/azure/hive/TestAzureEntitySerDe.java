@@ -9,6 +9,7 @@ import org.junit.*;
 
 
 import com.microsoft.hadoop.azure.WritableEntity;
+import com.microsoft.hadoop.azure.AzureTableConfiguration.Keys;
 import com.microsoft.windowsazure.storage.table.*;
 
 import static org.junit.Assert.*;
@@ -53,10 +54,19 @@ public class TestAzureEntitySerDe {
 	}
 
 	@Test
+	public void testPropertyNotFoundAndRequired() throws Exception {
+		testPropertyNotFound(true);
+	}
+
+	@Test
+	public void testPropertyNotFoundAndNotRequired() throws Exception {
+		testPropertyNotFound(false);
+	}
+
 	@SuppressWarnings("serial")
-	public void testPropertyNotFound() throws Exception {
+	public void testPropertyNotFound(boolean requireFieldExists) throws Exception {
 		WritableEntity entity = new WritableEntity();
-		entity.setProperties(new HashMap<String, EntityProperty>() {{
+		entity.setProperties(new LinkedHashMap<String, EntityProperty>() {{
 			put("a", new EntityProperty(7));
 			put("b", new EntityProperty("hello"));
 		}});
@@ -64,17 +74,29 @@ public class TestAzureEntitySerDe {
 		Properties tbl = new Properties();
 		tbl.put(LIST_COLUMNS, "a,b,c");
 		tbl.put(LIST_COLUMN_TYPES, "int,string,int");
-		serDe.initialize(new Configuration(), tbl);
+		Configuration conf = new Configuration();
+		if (requireFieldExists) {
+			conf.setBoolean(Keys.REQUIRE_FIELD_EXISTS.getKey(), true);
+		}
+		serDe.initialize(conf, tbl);
 		StructObjectInspector inspector = (StructObjectInspector)serDe.getObjectInspector();
 		assertEquals(7, inspector.getStructFieldData(entity,
 				inspector.getStructFieldRef("a")));
 		try {
-			inspector.getStructFieldData(entity,
+			Object returned = inspector.getStructFieldData(entity,
 					inspector.getStructFieldRef("c"));
-			fail("Should've thrown here.");
+			if (requireFieldExists) {
+				fail("Should've thrown here.");
+			} else {
+				assertNull(returned);
+			}
 		} catch (IllegalArgumentException ex) {
-			assertEquals("No property found with name c. Properties found: a,b",
-					ex.getMessage());
+			if (requireFieldExists) {
+				assertEquals("No property found with name c. Properties found: a,b",
+						ex.getMessage());
+			} else {
+				throw ex;
+			}
 		}
 	}
 }

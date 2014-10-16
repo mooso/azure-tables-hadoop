@@ -11,10 +11,13 @@ import com.microsoft.windowsazure.storage.table.*;
 class PrimitiveField implements StructField {
 	private final EntityPropertyInspector inspector;
 	private final String name;
+	private final boolean requireFieldExists;
 
-	public PrimitiveField(String name, EntityPropertyInspector inspector) {
+	public PrimitiveField(String name, EntityPropertyInspector inspector,
+			boolean requireFieldExists) {
 		this.name = name;
 		this.inspector = inspector;
+		this.requireFieldExists = requireFieldExists;
 	}
 
 	@Override
@@ -49,10 +52,14 @@ class PrimitiveField implements StructField {
 					}
 				}
 				if (value == null) {
-					throw new IllegalArgumentException(
-							"No property found with name " + name +
-							". Properties found: " +
-							Joiner.on(',').join(entity.getProperties().keySet()));
+					if (requireFieldExists) {
+						throw new IllegalArgumentException(
+								"No property found with name " + name +
+								". Properties found: " +
+								Joiner.on(',').join(entity.getProperties().keySet()));
+					} else {
+						return null;
+					}
 				}
 			}
 		}
