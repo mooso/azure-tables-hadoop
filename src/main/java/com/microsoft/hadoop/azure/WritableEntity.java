@@ -17,6 +17,7 @@ public class WritableEntity extends DynamicTableEntity implements Writable {
 		// Read the partition and row keys.
 		setPartitionKey(input.readUTF());
 		setRowKey(input.readUTF());
+		setTimestamp(new Date(input.readLong()));
 		// Read the rest of the properties.
 		int numProperties = input.readInt();
 		HashMap<String, EntityProperty> properties =
@@ -33,6 +34,7 @@ public class WritableEntity extends DynamicTableEntity implements Writable {
 		// Write the partition and row keys.
 		output.writeUTF(getPartitionKey());
 		output.writeUTF(getRowKey());
+		output.writeLong(getTimestamp().getTime());
 		// Write the rest of the properties.
 		HashMap<String, EntityProperty> properties =
 				getProperties();

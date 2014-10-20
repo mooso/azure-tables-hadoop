@@ -73,6 +73,7 @@ public class OldAzureTableReader implements RecordReader<Text, WritableEntity> {
 			key.set(obtained.getRowKey());
 			value.setPartitionKey(obtained.getPartitionKey());
 			value.setRowKey(obtained.getRowKey());
+			value.setTimestamp(obtained.getTimestamp());
 			value.setProperties(obtained.getProperties());
 			pos++;
 			return true;

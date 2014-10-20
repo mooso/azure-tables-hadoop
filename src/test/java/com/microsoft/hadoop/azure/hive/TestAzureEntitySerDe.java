@@ -1,5 +1,6 @@
 package com.microsoft.hadoop.azure.hive;
 
+import java.sql.Timestamp;
 import java.util.*;
 
 import org.apache.hadoop.conf.Configuration;
@@ -29,18 +30,24 @@ public class TestAzureEntitySerDe {
 		}});
 		entity.setRowKey("rowKey");
 		entity.setPartitionKey("partKey");
+		Calendar dateToStore = Calendar.getInstance();
+		dateToStore.set(1980, 10, 1);
+		entity.setTimestamp(dateToStore.getTime());
 		AzureEntitySerDe serDe = new AzureEntitySerDe();
 		Properties tbl = new Properties();
 		tbl.put(LIST_COLUMNS,
-				"PartitionKey,RowKey,intField,stringField,bigIntField,doubleField,booleanField");
+				"PartitionKey,RowKey,Timestamp,intField,stringField,bigIntField,doubleField,booleanField");
 		tbl.put(LIST_COLUMN_TYPES,
-				"string,string,int,string,bigint,double,boolean");
+				"string,string,timestamp,int,string,bigint,double,boolean");
 		serDe.initialize(new Configuration(), tbl);
 		StructObjectInspector inspector = (StructObjectInspector)serDe.getObjectInspector();
 		assertEquals("rowKey", inspector.getStructFieldData(entity,
 				inspector.getStructFieldRef("RowKey")));
 		assertEquals("partKey", inspector.getStructFieldData(entity,
 				inspector.getStructFieldRef("PartitionKey")));
+		assertEquals(new Timestamp(dateToStore.getTime().getTime()),
+				inspector.getStructFieldData(entity,
+						inspector.getStructFieldRef("Timestamp")));
 		assertEquals(3, inspector.getStructFieldData(entity,
 				inspector.getStructFieldRef("intField")));
 		assertEquals("hi", inspector.getStructFieldData(entity,

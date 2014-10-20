@@ -1,5 +1,7 @@
 package com.microsoft.hadoop.azure.hive;
 
+import java.sql.Timestamp;
+
 import org.apache.hadoop.hive.serde2.objectinspector.*;
 
 import com.google.common.base.Joiner;
@@ -41,6 +43,8 @@ class PrimitiveField implements StructField {
 			value = entity.getRowKey();
 		} else if (name.equalsIgnoreCase("PartitionKey")) {
 			value = entity.getPartitionKey();
+		} else if (name.equalsIgnoreCase("Timestamp")) {
+			value = new Timestamp(entity.getTimestamp().getTime());
 		} else {
 			value = entity.getProperties().get(name);
 			if (value == null) {
